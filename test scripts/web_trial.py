@@ -1,63 +1,194 @@
 import asyncio
 from playwright.async_api import async_playwright
+import sqlite3
+import time
+import logging
+from bs4 import BeautifulSoup
+
+# ── Configuration ─────────────────────────────────────────────────────────────
+DB_FILE = "./data/hm_products.db"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)s  %(message)s",
+)
+log = logging.getLogger(__name__)
  
- 
-async def main():
+# ── Database helpers ──────────────────────────────────────────────────────────
+
+def add_detail_columns(conn: sqlite3.Connection) -> None:
+    """
+    Safely add new columns to the products table if they don't exist yet.
+    SQLite ignores the command if the column is already there (via try/except).
+    """
+    new_columns = [
+        ("description_text", "TEXT"),
+        ("length",           "TEXT"),
+        ("style",            "TEXT"),
+        ("composition",      "TEXT"),
+    ]
+    for col_name, col_type in new_columns:
+        try:
+            conn.execute(f"ALTER TABLE products ADD COLUMN {col_name} {col_type}")
+            log.info("Added column: %s", col_name)
+        except sqlite3.OperationalError:
+            pass   # column already exists — that's fine
+    conn.commit()
+
+def get_all_products(conn: sqlite3.Connection) -> list[tuple]:
+    """Return (product_id, product_url) for every row in products."""
+    rows = conn.execute(
+        "SELECT product_id, product_url FROM products"
+    ).fetchall()
+    return rows
+
+
+# main logic ─────────────────────────────────────────────────────────────
+async def run_detail_scrape():
     async with async_playwright() as p:
         # Connect to an existing browser instance over CDP
         browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
         context = browser.contexts[0]
         page = await context.new_page()
 
-        await page.goto(
-            "https://www2.hm.com/en_hk/productpage.1307966001.html",
-            wait_until="domcontentloaded",
-            timeout=30000
-        )
+        # await page.goto(
+        #     "https://www2.hm.com/en_hk/productpage.1307966001.html",
+        #     wait_until="domcontentloaded",
+        #     timeout=30000
+        # )
  
         # Wait for the page to fully load its products
         await page.wait_for_timeout(3000)
+
+        # debugging --------------
+        conn = sqlite3.connect(DB_FILE)
+    
+        # Make sure the extra columns exist before we try to write to them
+        add_detail_columns(conn)
+        
+        products = get_all_products(conn)
+        total    = len(products)
+        log.info("Starting detail scrape for %d products...", total)
+
+        for i, (product_id, product_url) in enumerate(products, 1):
+            log.info("[%d/%d] Processing ID: %s -> %s", i, total, product_id, product_url)
+            try:
+                # Direct navigation simulating normal window operations
+                await page.goto(product_url, wait_until="domcontentloaded", timeout=30000)
+
+                # -------- 1. find description accordion -------------
+                # await page.locator("#toggle-descriptionAccordion").click()
+                
+                product_card_locator = page.locator("#section-descriptionAccordion")
+                #html_text = await product_card_locator.inner_html()
+                #print("Description html_ext:", html_text)
+
+                description_locator = product_card_locator.locator("p").first
+                description_text = await description_locator.text_content()
+                #print("Description text:", description_text)              
+
+                # 1. define Locators
+                style_category_key = product_card_locator.locator("dt")
+                style_category_value = product_card_locator.locator("dd")  
+
+                # 2. find all keys for the styles 
+                all_keys_text = await style_category_key.all_text_contents()
+                # ---------- NO data-testid --------------
+                # all_values_text = await style_category_value.all_text_contents()
+                # style_attributes = {}
+                # for key, value in zip(all_keys_text, all_values_text):
+                #     clean_key = key.strip().replace(':', "").lower()
+                #     style_attributes[clean_key] = value.strip()
+
+                # --------- NEED data-testid --------------
+                # 3. evaluate_all() get all dd attribute and data-testid
+                # only need one await
+                all_values_data = await style_category_value.evaluate_all(
+                    """(elements) => 
+                        elements.map(el => ({
+                            text: el.textContent.trim(),
+                            testId: el.getAttribute('data-testid')
+                        }))
+                    """
+                )
+
+                # 4. make attribute dictionary
+                style_attributes = {}
+                for key_text, value_data in zip(all_keys_text, all_values_data):
+                    clean_key = key_text.strip().replace(':', '').lower()
+                    testid_attribute = value_data['testId']                    
+                    style_attributes[testid_attribute] = (clean_key,value_data['text'])
+                print("DEBUG: Found style attributes:", style_attributes)
+
+
+                # -------- 2. find material accordion -------------
+                # await page.locator("#toggle-materialsAndSuppliersAccordion").click()
+                material_card_locator = page.locator("#section-materialsAndSuppliersAccordion")
+                # html_text = await material_card_locator.inner_html()
+                # print("Materials html_text:", html_text)
+                material_text = await material_card_locator.locator("dd").first.text_content()
+                print("Material text:", material_text)
+
+                await page.wait_for_timeout(3000)   # structural delay ensuring JS hydration finishes
+                html = await page.content()
+    
+            except Exception as e:
+                log.warning("  ✗ Fetch failed for item %s: %s", product_id, e)
+                continue
+
+            # Run BeautifulSoup parser logic over the loaded HTML page layout
+            open(f"htmls/debug_{product_id}.html", "w", encoding="utf-8").write(html)  # debug dump
+            if i == 1:
+                break
+
+            details = extract_detail(html)
+            #update_product_details(conn, product_id, details)
+
+            # Commit periodically to secure data safety thresholds
+            if i % 20 == 0:
+                conn.commit()
+                log.info("  ✔ Committed %d products so far", i)
+
+            await page.wait_for_timeout(1000)   # polite anti-scraping cadence cooldown
+
+        await browser.close()
  
-        # # Run JavaScript inside the page to extract product names and prices
-        # products = await page.evaluate("""
-        #     () => {
-        #         const items = document.querySelectorAll(
-        #             '[class*="product"], [class*="item"], [class*="card"], ' +
-        #             '[class*="tile"], li.product, .ec-item'
-        #         );
-        #         const seen = new Set();
-        #         const results = [];
-        #         items.forEach(el => {
-        #             const nameEl = el.querySelector(
-        #                 '[class*="name"], [class*="title"], ' +
-        #                 '[class*="productName"], h3, h4, a'
-        #             );
-        #             const priceEl = el.querySelector(
-        #                 '[class*="price"], [class*="amount"], [class*="productPrice"]'
-        #             );
-        #             const name = nameEl?.innerText?.trim();
-        #             const price = priceEl?.innerText?.trim();
-        #             if (!name) return;
-        #             const key = name.split(/[\\d]{6,}/)[0].trim();
-        #             if (seen.has(key)) return;
-        #             seen.add(key);
-        #             results.push({ name, price: price || "(no price)" });
-        #         });
-        #         return results;
-        #     }
-        # """)
- 
-        # # Print the scraped data
-        # print(f"Found {len(products)} unique products:\n")
-        # for i, prod in enumerate(products, 1):
-        #     print(f"{i}. {prod['name']}")
-        #     print(f"   Price: {prod['price']}")
-        #     print()
- 
-        # input("Press Enter to close the browser...")
-        # When connecting to an existing browser, we don't close it
-        # await browser.close()
- 
- 
+def extract_detail(html: str) -> dict:
+    return {}
+def extract_detail2(html: str) -> dict:
+    """
+    Parse one H&M product page HTML string and return a dict of
+    design attributes.
+
+    H&M uses two patterns on the detail page:
+      1. A description paragraph  →  <p class="pdp-description-text"> or
+                                     first <p> inside the description section
+      2. Key-value pairs          →  <dl> with <dt> labels and <dd> values
+    """
+    soup = BeautifulSoup(html, "html.parser")
+
+    # ── 1. Description paragraph ─────────────────────────────────────────────
+    # Try the dedicated class first, fall back to any paragraph near the top
+    container = soup.find("div", id="section-descriptionAccordion")  # specific to H&M's current structure
+    description_paragraph = container.find("p")
+    description_text = description_paragraph.get_text(strip=True) if description_paragraph else None
+    print("DEBUG: Found description element:", description_text)
+
+    # ── 5. Assemble final result ──────────────────────────────────────────────
+    return {
+        "description_text": description_text,
+        # "fit":              kv.get("fit"),
+        # "length":           kv.get("length"),
+        # "sleeve_length":    kv.get("sleeve length"),
+        # "neckline":         kv.get("neckline"),
+        # "style":            kv.get("style"),
+        # "material":         kv.get("material"),
+        # "composition":      composition or kv.get("composition"),
+        # "pattern":          pattern or kv.get("pattern"),
+    }
+
+
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(run_detail_scrape())
