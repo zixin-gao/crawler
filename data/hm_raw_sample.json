@@ -1,5 +1,5 @@
 {
-  "requestDateTime": "2026-05-19T12:46:17.544Z",
+  "requestDateTime": "2026-05-20T06:18:41.276Z",
   "responseSource": "Elevate",
   "pagination": {
     "currentPage": 1,
@@ -1118,20 +1118,20 @@
             "productImage": "https://image.hm.com/assets/hm/72/71/727109ddcb6b6bd37a58d372b3e2e3b049c797c2.jpg"
           },
           {
-            "articleId": "1315439014",
-            "url": "/en_hk/productpage.1315439014.html",
-            "colorName": "Pine green",
-            "colorCode": "4C5353",
-            "trackingId": "OzU7IzsxMzE1NDM5MDE0OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDs5OzQ3OyM7IzsvbWVuL3Nob3AtYnktcHJvZHVjdC90LXNoaXJ0cy1hbmQtdGFua3M7_e4",
-            "productImage": "https://image.hm.com/assets/hm/1a/37/1a3716e992147cb1d0a828f02546e8cfeb981f2a.jpg"
-          },
-          {
             "articleId": "1315439001",
             "url": "/en_hk/productpage.1315439001.html",
             "colorName": "Black",
             "colorCode": "272627",
             "trackingId": "OzU7IzsxMzE1NDM5MDAxOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDs5OzQ3OyM7IzsvbWVuL3Nob3AtYnktcHJvZHVjdC90LXNoaXJ0cy1hbmQtdGFua3M7_e4",
             "productImage": "https://image.hm.com/assets/hm/a5/86/a58631f853066e5d3bdfbf1f1c05dd9e757e3965.jpg"
+          },
+          {
+            "articleId": "1315439014",
+            "url": "/en_hk/productpage.1315439014.html",
+            "colorName": "Pine green",
+            "colorCode": "4C5353",
+            "trackingId": "OzU7IzsxMzE1NDM5MDE0OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDs5OzQ3OyM7IzsvbWVuL3Nob3AtYnktcHJvZHVjdC90LXNoaXJ0cy1hbmQtdGFua3M7_e4",
+            "productImage": "https://image.hm.com/assets/hm/1a/37/1a3716e992147cb1d0a828f02546e8cfeb981f2a.jpg"
           },
           {
             "articleId": "1315439003",
@@ -1461,6 +1461,14 @@
             "colorCode": "FFFFFF",
             "trackingId": "OzU7IzswNTcwMDAyMTk2OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDsxMTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/7d/13/7d133833ee7d644ad643ccf2cd4901cb0eed554f.jpg"
+          },
+          {
+            "articleId": "0570002197",
+            "url": "/en_hk/productpage.0570002197.html",
+            "colorName": "Dark brown",
+            "colorCode": "3F3838",
+            "trackingId": "OzU7IzswNTcwMDAyMTk3OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDsxMTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "productImage": "https://image.hm.com/assets/hm/a6/b2/a6b26c731395196ecfbe637cfc3521a311dad831.jpg"
           }
         ],
         "productMarkers": [],
@@ -3375,20 +3383,20 @@
             "productImage": "https://image.hm.com/assets/hm/d7/54/d754f582a243ce3a4416d1e13a2b02c4b9821682.jpg"
           },
           {
-            "articleId": "0967955170",
-            "url": "/en_hk/productpage.0967955170.html",
-            "colorName": "White/Red Rock",
-            "colorCode": "F4F3E9",
-            "trackingId": "OzU7IzswOTY3OTU1MTcwOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDsyNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
-            "productImage": "https://image.hm.com/assets/hm/78/be/78be539091be5b7c068d4b9c8d9236eb6ad53b36.jpg"
-          },
-          {
             "articleId": "0967955204",
             "url": "/en_hk/productpage.0967955204.html",
             "colorName": "Black/Spring Rally",
             "colorCode": "272627",
             "trackingId": "OzU7IzswOTY3OTU1MjA0OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDsyNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/cb/31/cb310db642518f58a358028107e5d38be82dee7e.jpg"
+          },
+          {
+            "articleId": "0967955170",
+            "url": "/en_hk/productpage.0967955170.html",
+            "colorName": "White/Red Rock",
+            "colorCode": "F4F3E9",
+            "trackingId": "OzU7IzswOTY3OTU1MTcwOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDsyNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "productImage": "https://image.hm.com/assets/hm/78/be/78be539091be5b7c068d4b9c8d9236eb6ad53b36.jpg"
           },
           {
             "articleId": "0967955172",
@@ -4368,20 +4376,20 @@
             "productImage": "https://image.hm.com/assets/hm/45/02/45020e318b9d23feff488d939581d0c0d7a351ff.jpg"
           },
           {
-            "articleId": "1331624003",
-            "url": "/en_hk/productpage.1331624003.html",
-            "colorName": "Light grey",
-            "colorCode": "C8C9CA",
-            "trackingId": "OzU7IzsxMzMxNjI0MDAzOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszMjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
-            "productImage": "https://image.hm.com/assets/hm/c4/c1/c4c1c1d9c32fd9880290db5b1b0932a04d2bcca5.jpg"
-          },
-          {
             "articleId": "1331624004",
             "url": "/en_hk/productpage.1331624004.html",
             "colorName": "Blue",
             "colorCode": "465161",
             "trackingId": "OzU7IzsxMzMxNjI0MDA0OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszMjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/a0/05/a005d6a0feb528de093cebee60c300a3e77fb818.jpg"
+          },
+          {
+            "articleId": "1331624003",
+            "url": "/en_hk/productpage.1331624003.html",
+            "colorName": "Light grey",
+            "colorCode": "C8C9CA",
+            "trackingId": "OzU7IzsxMzMxNjI0MDAzOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszMjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "productImage": "https://image.hm.com/assets/hm/c4/c1/c4c1c1d9c32fd9880290db5b1b0932a04d2bcca5.jpg"
           }
         ],
         "productMarkers": [],
@@ -4746,8 +4754,165 @@
         "mainCatCode": "men_tshirtstanks_shortsleeve"
       },
       {
+        "id": "1315439001",
+        "trackingId": "OzU7IzsxMzE1NDM5MDAxOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+        "productName": "Regular Fit Sports vest top with DryMove™",
+        "modelImage": "https://image.hm.com/assets/hm/4d/af/4dafd8c595309b54e238ed2c4821b7a83207eca2.jpg",
+        "modelImageInfo": {
+          "url": "https://image.hm.com/assets/hm/4d/af/4dafd8c595309b54e238ed2c4821b7a83207eca2.jpg",
+          "altText": "Regular Fit Sports vest top with DryMove™-Black",
+          "assetType": "Lookbook"
+        },
+        "productImage": "https://image.hm.com/assets/hm/a5/86/a58631f853066e5d3bdfbf1f1c05dd9e757e3965.jpg",
+        "productImageInfo": {
+          "url": "https://image.hm.com/assets/hm/a5/86/a58631f853066e5d3bdfbf1f1c05dd9e757e3965.jpg",
+          "altText": "Regular Fit Sports vest top with DryMove™-Black",
+          "assetType": "DescriptiveStillLife"
+        },
+        "external": false,
+        "brandName": "H&M",
+        "url": "/en_hk/productpage.1315439001.html",
+        "showPriceMarker": false,
+        "prices": [
+          {
+            "priceType": "whitePrice",
+            "price": 99.0,
+            "minPrice": 99.0,
+            "maxPrice": 99.0,
+            "formattedPrice": "HK$99.00"
+          }
+        ],
+        "availability": {
+          "stockState": "Available",
+          "comingSoon": false
+        },
+        "swatches": [
+          {
+            "articleId": "1315439001",
+            "url": "/en_hk/productpage.1315439001.html",
+            "colorName": "Black",
+            "colorCode": "272627",
+            "trackingId": "OzU7IzsxMzE1NDM5MDAxOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "productImage": "https://image.hm.com/assets/hm/a5/86/a58631f853066e5d3bdfbf1f1c05dd9e757e3965.jpg"
+          },
+          {
+            "articleId": "1315439010",
+            "url": "/en_hk/productpage.1315439010.html",
+            "colorName": "White",
+            "colorCode": "FFFFFF",
+            "trackingId": "OzU7IzsxMzE1NDM5MDEwOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "productImage": "https://image.hm.com/assets/hm/72/71/727109ddcb6b6bd37a58d372b3e2e3b049c797c2.jpg"
+          },
+          {
+            "articleId": "1315439014",
+            "url": "/en_hk/productpage.1315439014.html",
+            "colorName": "Pine green",
+            "colorCode": "4C5353",
+            "trackingId": "OzU7IzsxMzE1NDM5MDE0OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "productImage": "https://image.hm.com/assets/hm/1a/37/1a3716e992147cb1d0a828f02546e8cfeb981f2a.jpg"
+          },
+          {
+            "articleId": "1315439003",
+            "url": "/en_hk/productpage.1315439003.html",
+            "colorName": "Dark blue",
+            "colorCode": "393A45",
+            "trackingId": "OzU7IzsxMzE1NDM5MDAzOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "productImage": "https://image.hm.com/assets/hm/20/09/20095c6f61f0742e8c227950942ec97f298247a8.jpg"
+          },
+          {
+            "articleId": "1315439013",
+            "url": "/en_hk/productpage.1315439013.html",
+            "colorName": "Matcha green",
+            "colorCode": "8F9489",
+            "trackingId": "OzU7IzsxMzE1NDM5MDEzOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "productImage": "https://image.hm.com/assets/hm/ca/10/ca10185dcee6d38e4acc6de5542b8f52b45ff68d.jpg"
+          },
+          {
+            "articleId": "1315439005",
+            "url": "/en_hk/productpage.1315439005.html",
+            "colorName": "Light dusty green",
+            "colorCode": "A6AEAA",
+            "trackingId": "OzU7IzsxMzE1NDM5MDA1OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "productImage": "https://image.hm.com/assets/hm/9b/f9/9bf913fa561558b505c347d7a82334e3a6c7f3a9.jpg"
+          }
+        ],
+        "productMarkers": [
+          {
+            "text": "H&M Move",
+            "type": "custom"
+          }
+        ],
+        "images": [
+          {
+            "url": "https://image.hm.com/assets/hm/a6/49/a649b47e09178d43d137f4f0cc31399e477040cc.jpg",
+            "altText": "Regular Fit Sports vest top with DryMove™-Black",
+            "assetType": "Lookbook"
+          },
+          {
+            "url": "https://image.hm.com/assets/hm/68/a8/68a86c61a99c9d5f4daf3cc6cc609869e4b14ed8.jpg",
+            "altText": "Regular Fit Sports vest top with DryMove™-Black",
+            "assetType": "Lookbook"
+          },
+          {
+            "url": "https://image.hm.com/assets/hm/f0/9b/f09b0424782eddfe64056e915bea55b74e8dcca3.jpg",
+            "altText": "Regular Fit Sports vest top with DryMove™-Black",
+            "assetType": "DescriptiveDetail"
+          },
+          {
+            "url": "https://image.hm.com/assets/hm/96/83/968399a5e21a567a288b1484a0f20bd08b9478a3.jpg",
+            "altText": "Regular Fit Sports vest top with DryMove™-Black",
+            "assetType": "Lookbook"
+          }
+        ],
+        "hasVideo": false,
+        "removed": false,
+        "colorName": "Black",
+        "isPreShopping": false,
+        "isOnline": true,
+        "colors": "272627",
+        "colourShades": "Charcoal",
+        "isMultipack": false,
+        "sizes": [
+          {
+            "id": "010",
+            "label": "XS",
+            "stock": 2
+          },
+          {
+            "id": "011",
+            "label": "S",
+            "stock": 2
+          },
+          {
+            "id": "012",
+            "label": "M",
+            "stock": 2
+          },
+          {
+            "id": "013",
+            "label": "L",
+            "stock": 2
+          },
+          {
+            "id": "014",
+            "label": "XL",
+            "stock": 2
+          },
+          {
+            "id": "015",
+            "label": "XXL",
+            "stock": 2
+          }
+        ],
+        "newArrival": false,
+        "isLiquidPixelUrl": false,
+        "productMarkerText": "H&M Move",
+        "colorWithNames": "black_000000",
+        "mainCatCode": "sportswear_men_activity_training_tops"
+      },
+      {
         "id": "1034065182",
-        "trackingId": "OzU7IzsxMDM0MDY1MTgyOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+        "trackingId": "OzU7IzsxMDM0MDY1MTgyOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
         "productName": "Loose Fit Printed T-shirt",
         "modelImage": "https://image.hm.com/assets/hm/d6/f1/d6f1a99748dfcb5e32f11432712ad182d9a8f65b.jpg",
         "modelImageInfo": {
@@ -4784,7 +4949,7 @@
             "url": "/en_hk/productpage.1034065182.html",
             "colorName": "White/Seashells",
             "colorCode": "F4F3E9",
-            "trackingId": "OzU7IzsxMDM0MDY1MTgyOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "trackingId": "OzU7IzsxMDM0MDY1MTgyOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/d6/f1/d6f1a99748dfcb5e32f11432712ad182d9a8f65b.jpg"
           },
           {
@@ -4792,7 +4957,7 @@
             "url": "/en_hk/productpage.1034065206.html",
             "colorName": "Dark grey/No Defeat",
             "colorCode": "303033",
-            "trackingId": "OzU7IzsxMDM0MDY1MjA2OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "trackingId": "OzU7IzsxMDM0MDY1MjA2OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/5b/a9/5ba95e46d5853501760737f80023b73747bce23b.jpg"
           },
           {
@@ -4800,7 +4965,7 @@
             "url": "/en_hk/productpage.1034065217.html",
             "colorName": "Light blue/Ashbury House",
             "colorCode": "AFBFDF",
-            "trackingId": "OzU7IzsxMDM0MDY1MjE3OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "trackingId": "OzU7IzsxMDM0MDY1MjE3OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/43/7d/437d2e2aed5d6fd0038bca8a139edf75e3647315.jpg"
           },
           {
@@ -4808,7 +4973,7 @@
             "url": "/en_hk/productpage.1034065203.html",
             "colorName": "White/Crab",
             "colorCode": "FFFFFF",
-            "trackingId": "OzU7IzsxMDM0MDY1MjAzOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "trackingId": "OzU7IzsxMDM0MDY1MjAzOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/5e/68/5e6834b3e657328330b46fd756e8570b0a5b0a71.jpg"
           },
           {
@@ -4816,7 +4981,7 @@
             "url": "/en_hk/productpage.1034065177.html",
             "colorName": "Peach pink/Echo Park",
             "colorCode": "F2C6B5",
-            "trackingId": "OzU7IzsxMDM0MDY1MTc3OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "trackingId": "OzU7IzsxMDM0MDY1MTc3OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/f6/2d/f62d566497622660b286500bcaecaded861fe4b5.jpg"
           },
           {
@@ -4824,7 +4989,7 @@
             "url": "/en_hk/productpage.1034065219.html",
             "colorName": "White/Finca Olivetta",
             "colorCode": "FFFFFF",
-            "trackingId": "OzU7IzsxMDM0MDY1MjE5OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "trackingId": "OzU7IzsxMDM0MDY1MjE5OyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/e6/2e/e62e7cd1a7e36d9dc2fc582db53a8d553439094d.jpg"
           },
           {
@@ -4832,7 +4997,7 @@
             "url": "/en_hk/productpage.1034065212.html",
             "colorName": "White/Offside Society",
             "colorCode": "F4F3E9",
-            "trackingId": "OzU7IzsxMDM0MDY1MjEyOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "trackingId": "OzU7IzsxMDM0MDY1MjEyOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/8c/39/8c395cebdee04fbda87792039c605338b03062a1.jpg"
           },
           {
@@ -4840,7 +5005,7 @@
             "url": "/en_hk/productpage.1034065213.html",
             "colorName": "White/Peak Season",
             "colorCode": "FFFFFF",
-            "trackingId": "OzU7IzsxMDM0MDY1MjEzOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "trackingId": "OzU7IzsxMDM0MDY1MjEzOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/70/5d/705da6ab8b0c51875a1a065b08cb7c3ef26df2e5.jpg"
           },
           {
@@ -4848,7 +5013,7 @@
             "url": "/en_hk/productpage.1034065161.html",
             "colorName": "White/Puerto Vallarta",
             "colorCode": "FFFFFF",
-            "trackingId": "OzU7IzsxMDM0MDY1MTYxOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNTs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
+            "trackingId": "OzU7IzsxMDM0MDY1MTYxOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
             "productImage": "https://image.hm.com/assets/hm/02/d6/02d6b19240d6c5c87bc9fe75643d9b5216e3775a.jpg"
           }
         ],
@@ -4908,129 +5073,6 @@
         "isLiquidPixelUrl": false,
         "colorWithNames": "white_ffffff|multi_000000",
         "mainCatCode": "men_merchgraphics_tshirts"
-      },
-      {
-        "id": "1337002001",
-        "trackingId": "OzU7IzsxMzM3MDAyMDAxOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
-        "productName": "Loose Fit Printed vest top",
-        "modelImage": "https://image.hm.com/assets/hm/c3/80/c38093969f10db67af96f172b6e944c3e671bb7c.jpg",
-        "modelImageInfo": {
-          "url": "https://image.hm.com/assets/hm/c3/80/c38093969f10db67af96f172b6e944c3e671bb7c.jpg",
-          "altText": "Loose Fit Printed vest top-Black/Los Angeles",
-          "assetType": "Lookbook"
-        },
-        "productImage": "https://image.hm.com/assets/hm/ba/e1/bae143f5c516d7def36804dd57bb2f64b26d2814.jpg",
-        "productImageInfo": {
-          "url": "https://image.hm.com/assets/hm/ba/e1/bae143f5c516d7def36804dd57bb2f64b26d2814.jpg",
-          "altText": "Loose Fit Printed vest top-Black/Los Angeles",
-          "assetType": "DescriptiveStillLife"
-        },
-        "external": false,
-        "brandName": "H&M",
-        "url": "/en_hk/productpage.1337002001.html",
-        "showPriceMarker": false,
-        "prices": [
-          {
-            "priceType": "whitePrice",
-            "price": 79.0,
-            "minPrice": 79.0,
-            "maxPrice": 79.0,
-            "formattedPrice": "HK$79.00"
-          }
-        ],
-        "availability": {
-          "stockState": "Available",
-          "comingSoon": false
-        },
-        "swatches": [
-          {
-            "articleId": "1337002001",
-            "url": "/en_hk/productpage.1337002001.html",
-            "colorName": "Black/Los Angeles",
-            "colorCode": "272627",
-            "trackingId": "OzU7IzsxMzM3MDAyMDAxOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
-            "productImage": "https://image.hm.com/assets/hm/ba/e1/bae143f5c516d7def36804dd57bb2f64b26d2814.jpg"
-          },
-          {
-            "articleId": "1337002002",
-            "url": "/en_hk/productpage.1337002002.html",
-            "colorName": "White/California",
-            "colorCode": "F0F1F0",
-            "trackingId": "OzU7IzsxMzM3MDAyMDAyOyM7IzsvZmFzaGlvbi9ERVNLVE9QL0xBTkRJTkdfUEFHRS9OQVZJR0FUSU9OX1JFU1VMVDsjOyM7T0JKRUNUSVZFJDszNjs0NzsjOyM7L21lbi9zaG9wLWJ5LXByb2R1Y3QvdC1zaGlydHMtYW5kLXRhbmtzOw_e4",
-            "productImage": "https://image.hm.com/assets/hm/2d/69/2d6904e220e8dad8ac7692bb378615b198a02f70.jpg"
-          }
-        ],
-        "productMarkers": [],
-        "images": [
-          {
-            "url": "https://image.hm.com/assets/hm/22/70/2270ffc7b517e2c4bb354f4d4bf5de6745ad18b5.jpg",
-            "altText": "Loose Fit Printed vest top-Black/Los Angeles",
-            "assetType": "Lookbook"
-          },
-          {
-            "url": "https://image.hm.com/assets/hm/fa/9a/fa9a20f4c901ba182a8ef52fe06c7bd8cf84c8b1.jpg",
-            "altText": "Loose Fit Printed vest top-Black/Los Angeles",
-            "assetType": "Lookbook"
-          },
-          {
-            "url": "https://image.hm.com/assets/hm/8e/b0/8eb09c10146fcae18a5cf01b0635a1f3226d880a.jpg",
-            "altText": "Loose Fit Printed vest top-Black/Los Angeles",
-            "assetType": "DescriptiveDetail"
-          },
-          {
-            "url": "https://image.hm.com/assets/hm/f1/9d/f19dd6f07ecf1153db3d6ccf1c8e5a96b0ae637d.jpg",
-            "altText": "Loose Fit Printed vest top-Black/Los Angeles",
-            "assetType": "Lookbook"
-          },
-          {
-            "url": "https://image.hm.com/assets/hm/1d/c7/1dc7250d209cb6e9e885485d9a4536e0c4a6f19b.jpg",
-            "altText": "Loose Fit Printed vest top-Black/Los Angeles",
-            "assetType": "DescriptiveDetail"
-          }
-        ],
-        "hasVideo": false,
-        "removed": false,
-        "colorName": "Black/Los Angeles",
-        "isPreShopping": false,
-        "isOnline": true,
-        "colors": "272627",
-        "isMultipack": false,
-        "sizes": [
-          {
-            "id": "012",
-            "label": "M",
-            "stock": 2
-          },
-          {
-            "id": "011",
-            "label": "S",
-            "stock": 2
-          },
-          {
-            "id": "010",
-            "label": "XS",
-            "stock": 2
-          },
-          {
-            "id": "015",
-            "label": "XXL",
-            "stock": 2
-          },
-          {
-            "id": "014",
-            "label": "XL",
-            "stock": 2
-          },
-          {
-            "id": "013",
-            "label": "L",
-            "stock": 2
-          }
-        ],
-        "newArrival": true,
-        "isLiquidPixelUrl": false,
-        "colorWithNames": "black_000000|multi_000000",
-        "mainCatCode": "men_tshirtstanks_tanks"
       }
     ],
     "sortOptions": {
@@ -5058,7 +5100,7 @@
         }
       ]
     },
-    "numberOfHits": 548,
+    "numberOfHits": 545,
     "sliceRanges": [],
     "facets": [
       {
@@ -5090,7 +5132,7 @@
           {
             "id": "blue_0000ff",
             "name": "blue_0000ff",
-            "count": 72,
+            "count": 71,
             "selected": false
           },
           {
@@ -5102,7 +5144,7 @@
           {
             "id": "green_008000",
             "name": "green_008000",
-            "count": 43,
+            "count": 42,
             "selected": false
           },
           {
@@ -5150,7 +5192,7 @@
           {
             "id": "white_ffffff",
             "name": "white_ffffff",
-            "count": 170,
+            "count": 169,
             "selected": false
           },
           {
@@ -5179,7 +5221,7 @@
               {
                 "id": "menswear;NO_FORMAT[SML];S",
                 "name": "S",
-                "count": 328,
+                "count": 330,
                 "selected": false
               },
               {
@@ -5191,13 +5233,13 @@
               {
                 "id": "menswear;NO_FORMAT[SML];L",
                 "name": "L",
-                "count": 384,
+                "count": 381,
                 "selected": false
               },
               {
                 "id": "menswear;NO_FORMAT[SML];XL",
                 "name": "XL",
-                "count": 358,
+                "count": 356,
                 "selected": false
               },
               {
@@ -5237,7 +5279,7 @@
           {
             "id": "Regular length",
             "name": "Regular length",
-            "count": 520,
+            "count": 517,
             "selected": false
           },
           {
@@ -5257,7 +5299,7 @@
           {
             "id": "Boxy",
             "name": "Boxy",
-            "count": 81,
+            "count": 80,
             "selected": false
           },
           {
@@ -5269,7 +5311,7 @@
           {
             "id": "Polo shirt",
             "name": "Polo shirt",
-            "count": 135,
+            "count": 134,
             "selected": false
           },
           {
@@ -5307,13 +5349,13 @@
           {
             "id": "Cotton",
             "name": "Cotton",
-            "count": 263,
+            "count": 262,
             "selected": false
           },
           {
             "id": "Jersey",
             "name": "Jersey",
-            "count": 340,
+            "count": 337,
             "selected": false
           },
           {
@@ -5393,7 +5435,7 @@
           {
             "id": "Solid colour",
             "name": "Solid colour",
-            "count": 374,
+            "count": 372,
             "selected": false
           },
           {
@@ -5425,7 +5467,7 @@
           {
             "id": "Round neck",
             "name": "Round neck",
-            "count": 340,
+            "count": 338,
             "selected": false
           },
           {
@@ -5445,7 +5487,7 @@
           {
             "id": "H&M",
             "name": "H&M",
-            "count": 548,
+            "count": 545,
             "selected": false
           }
         ]
@@ -5465,7 +5507,7 @@
           {
             "id": "Loose fit",
             "name": "Loose fit",
-            "count": 177,
+            "count": 174,
             "selected": false
           },
           {
@@ -5529,7 +5571,7 @@
           {
             "id": "T-shirt",
             "name": "T-shirt",
-            "count": 481,
+            "count": 478,
             "selected": false
           },
           {
@@ -5549,7 +5591,7 @@
           {
             "id": "Man",
             "name": "Man",
-            "count": 548,
+            "count": 545,
             "selected": false
           }
         ]
@@ -5591,7 +5633,7 @@
           {
             "id": "Clothing",
             "name": "Clothing",
-            "count": 548,
+            "count": 545,
             "selected": false
           }
         ]
@@ -5605,7 +5647,7 @@
           {
             "id": "Adult",
             "name": "Adult",
-            "count": 548,
+            "count": 545,
             "selected": false
           }
         ]
@@ -5619,7 +5661,7 @@
           {
             "id": "BASICS",
             "name": "BASICS",
-            "count": 115,
+            "count": 116,
             "selected": false
           },
           {
@@ -5673,12 +5715,6 @@
             "selected": false
           },
           {
-            "id": "Neon",
-            "name": "Neon",
-            "count": 1,
-            "selected": false
-          },
-          {
             "id": "Ombre",
             "name": "Ombre",
             "count": 1,
@@ -5699,7 +5735,7 @@
           {
             "id": "Print",
             "name": "Print",
-            "count": 130,
+            "count": 129,
             "selected": false
           },
           {
@@ -5731,7 +5767,7 @@
           {
             "id": "Short sleeve",
             "name": "Short sleeve",
-            "count": 422,
+            "count": 419,
             "selected": false
           },
           {
@@ -5989,13 +6025,13 @@
           {
             "id": "Cream",
             "name": "Cream",
-            "count": 34,
+            "count": 33,
             "selected": false
           },
           {
             "id": "Dark blue",
             "name": "Dark blue",
-            "count": 40,
+            "count": 39,
             "selected": false
           },
           {
@@ -6055,7 +6091,7 @@
           {
             "id": "Grey white",
             "name": "Grey white",
-            "count": 39,
+            "count": 38,
             "selected": false
           },
           {
@@ -6073,7 +6109,7 @@
           {
             "id": "Ivory",
             "name": "Ivory",
-            "count": 46,
+            "count": 45,
             "selected": false
           },
           {
@@ -6133,13 +6169,7 @@
           {
             "id": "Navy blue",
             "name": "Navy blue",
-            "count": 44,
-            "selected": false
-          },
-          {
-            "id": "Neon green",
-            "name": "Neon green",
-            "count": 1,
+            "count": 43,
             "selected": false
           },
           {
@@ -6235,7 +6265,7 @@
           {
             "id": "White grey",
             "name": "White grey",
-            "count": 39,
+            "count": 38,
             "selected": false
           }
         ]
@@ -6249,7 +6279,7 @@
           {
             "id": "false",
             "name": "false",
-            "count": 548,
+            "count": 545,
             "selected": false
           }
         ]
@@ -6263,7 +6293,7 @@
           {
             "id": "Casual",
             "name": "Casual",
-            "count": 471,
+            "count": 468,
             "selected": false
           },
           {
@@ -6321,7 +6351,7 @@
           {
             "id": "men",
             "name": "men",
-            "count": 548,
+            "count": 545,
             "selected": false
           }
         ]

@@ -15,7 +15,7 @@ import logging
 from datetime import datetime
 
 # ── Configuration ────────────────────────────────────────────────────────────
-
+# https://www2.hm.com/en_hk/men/shop-by-product/t-shirts-and-tanks.html
 CATEGORY_ID   = "men_tshirtstanks"
 PAGE_ID       = "/men/shop-by-product/t-shirts-and-tanks"
 BASE_URL      = "https://api.hm.com/search-services/v1/en_hk/listing/resultpage"
@@ -49,7 +49,8 @@ def init_db(conn: sqlite3.Connection) -> None:
             gender          TEXT,
             category        TEXT,
             current_price   REAL,
-            origin_price    REAL,
+            max_price       REAL,
+            min_price       REAL,
             on_sale         INTEGER,
             stock_status    TEXT,
             main_image_url  TEXT,
@@ -61,6 +62,9 @@ def init_db(conn: sqlite3.Connection) -> None:
             material        TEXT,
             tags            TEXT,
             new_arrival     INTEGER,
+            external        INTEGER,        
+            brand_name      TEXT,
+            tracking_id     TEXT,
             product_url     TEXT,
             scraped_at      TEXT,
             raw_json        TEXT
@@ -112,6 +116,8 @@ def parse_product(item: dict, scraped_at: str) -> dict:
     """Map one raw API product dict to our schema."""
     prices   = item.get("prices", [{}])
     price    = prices[0].get("price") if prices else None
+    max_price = prices[0].get("maxPrice") if prices else None
+    min_price = prices[0].get("minPrice") if prices else None
     on_sale  = any(p.get("priceType") == "redPrice" for p in prices)
 
     markers  = [m.get("text", "") for m in item.get("productMarkers", [])]
@@ -122,11 +128,12 @@ def parse_product(item: dict, scraped_at: str) -> dict:
     return {
         "product_id":      item.get("id"),
         "name":            product_name,
-        "gender":          "Men",
+        "gender":          "Men", #FIX!!!!!
         "category":        item.get("mainCatCode"),
         "current_price":   price,
-        "origin_price":    price,          # H&M API doesn't separate these
-        "on_sale":         int(on_sale),
+        "max_price":       max_price,
+        "min_price":       min_price,
+        "on_sale":         on_sale,
         "stock_status":    item.get("availability", {}).get("stockState"),
         "main_image_url":  item.get("productImage"),
         "model_image_url": item.get("modelImage"),
@@ -136,7 +143,10 @@ def parse_product(item: dict, scraped_at: str) -> dict:
         "sleeve_length":   "",             # same
         "material":        "",             # same
         "tags":            tags_str,
-        "new_arrival":     int(item.get("newArrival", False)),
+        "new_arrival":     item.get("newArrival", False),
+        "external":        item.get("external", False),
+        "brand_name":      item.get("brandName"),
+        "tracking_id":     item.get("trackingId"),
         "product_url":     "https://www2.hm.com" + item.get("url", ""),
         "scraped_at":      scraped_at,
         "raw_json":        json.dumps(item),
@@ -165,15 +175,15 @@ def parse_colors(item: dict, scraped_at: str) -> list[dict]:
 def upsert_product(conn: sqlite3.Connection, row: dict) -> None:
     conn.execute("""
         INSERT OR REPLACE INTO products
-        (product_id, name, gender, category, current_price, origin_price,
+        (product_id, name, gender, category, current_price, max_price, min_price,
          on_sale, stock_status, main_image_url, model_image_url,
          fit, pattern, neckline, sleeve_length, material,
-         tags, new_arrival, product_url, scraped_at, raw_json)
+         tags, new_arrival, external, brand_name, tracking_id, product_url, scraped_at, raw_json)
         VALUES
-        (:product_id, :name, :gender, :category, :current_price, :origin_price,
+        (:product_id, :name, :gender, :category, :current_price, :max_price, :min_price,
          :on_sale, :stock_status, :main_image_url, :model_image_url,
          :fit, :pattern, :neckline, :sleeve_length, :material,
-         :tags, :new_arrival, :product_url, :scraped_at, :raw_json)
+         :tags, :new_arrival, :external, :brand_name, :tracking_id, :product_url, :scraped_at, :raw_json)
     """, row)
 
 def upsert_colors(conn: sqlite3.Connection, rows: list[dict]) -> None:
