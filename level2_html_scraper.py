@@ -4,9 +4,13 @@ import sqlite3
 import time
 import logging
 from bs4 import BeautifulSoup
+import csv
+import random
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 DB_FILE = "./data/hm_products.db"
+SEPARATOR_CHAR=","
+csv_file_name = "./data/hm_products_detail.csv"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,15 +46,15 @@ def get_all_products(conn: sqlite3.Connection) -> list[tuple]:
     ).fetchall()
     return rows
 
-
 # main logic ─────────────────────────────────────────────────────────────
 async def run_detail_scrape():
     async with async_playwright() as p:
-        # Connect to an existing browser instance over CDP
+        # Connect to an existing browser instance over CDP to avoid cookie issues
         browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
         context = browser.contexts[0]
         page = await context.new_page()
 
+        # debug testing whether the browser opens or not
         # await page.goto(
         #     "https://www2.hm.com/en_hk/productpage.1307966001.html",
         #     wait_until="domcontentloaded",
@@ -70,6 +74,9 @@ async def run_detail_scrape():
         total    = len(products)
         log.info("Starting detail scrape for %d products...", total)
 
+        csv_file = open(csv_file_name, "w", encoding="utf-8")
+
+        # extract style dictionary and material list
         for i, (product_id, product_url) in enumerate(products, 1):
             log.info("[%d/%d] Processing ID: %s -> %s", i, total, product_id, product_url)
             try:
@@ -114,11 +121,14 @@ async def run_detail_scrape():
 
                 # 4. make attribute dictionary
                 style_attributes = {}
+                csv_file.write(f'"{product_id}"{SEPARATOR_CHAR}"{description_text}"')
                 for key_text, value_data in zip(all_keys_text, all_values_data):
                     clean_key = key_text.strip().replace(':', '').lower()
                     testid_attribute = value_data['testId']                    
-                    style_attributes[testid_attribute] = (clean_key,value_data['text'])
-                print("DEBUG: Found style attributes:", style_attributes)
+                    style_attributes[testid_attribute] = (clean_key, value_data['text'])
+                    csv_file.write(f'{SEPARATOR_CHAR}"{clean_key}"')
+                # print("DEBUG: Found style attributes:", style_attributes)
+                csv_file.write("\n")
 
 
                 # -------- 2. find material accordion -------------
@@ -127,7 +137,7 @@ async def run_detail_scrape():
                 # html_text = await material_card_locator.inner_html()
                 # print("Materials html_text:", html_text)
                 material_text = await material_card_locator.locator("dd").first.text_content()
-                print("Material text:", material_text)
+                # print("Material text:", material_text)                
 
                 await page.wait_for_timeout(3000)   # structural delay ensuring JS hydration finishes
                 html = await page.content()
@@ -136,58 +146,22 @@ async def run_detail_scrape():
                 log.warning("  ✗ Fetch failed for item %s: %s", product_id, e)
                 continue
 
-            # Run BeautifulSoup parser logic over the loaded HTML page layout
-            open(f"htmls/debug_{product_id}.html", "w", encoding="utf-8").write(html)  # debug dump
-            if i == 1:
-                break
+            # debug dump
+            # open(f"htmls/debug_{product_id}.html", "w", encoding="utf-8").write(html) 
+            # if i == 1:
+            #     break
 
-            details = extract_detail(html)
-            #update_product_details(conn, product_id, details)
-
+            # update_product_details(conn, product_id, details)
+            
             # Commit periodically to secure data safety thresholds
             if i % 20 == 0:
-                conn.commit()
+                # conn.commit()
                 log.info("  ✔ Committed %d products so far", i)
 
-            await page.wait_for_timeout(1000)   # polite anti-scraping cadence cooldown
+            await page.wait_for_timeout(random.randint(4500, 6000))   # polite anti-scraping cadence cooldown
 
         await browser.close()
  
-def extract_detail(html: str) -> dict:
-    return {}
-def extract_detail2(html: str) -> dict:
-    """
-    Parse one H&M product page HTML string and return a dict of
-    design attributes.
-
-    H&M uses two patterns on the detail page:
-      1. A description paragraph  →  <p class="pdp-description-text"> or
-                                     first <p> inside the description section
-      2. Key-value pairs          →  <dl> with <dt> labels and <dd> values
-    """
-    soup = BeautifulSoup(html, "html.parser")
-
-    # ── 1. Description paragraph ─────────────────────────────────────────────
-    # Try the dedicated class first, fall back to any paragraph near the top
-    container = soup.find("div", id="section-descriptionAccordion")  # specific to H&M's current structure
-    description_paragraph = container.find("p")
-    description_text = description_paragraph.get_text(strip=True) if description_paragraph else None
-    print("DEBUG: Found description element:", description_text)
-
-    # ── 5. Assemble final result ──────────────────────────────────────────────
-    return {
-        "description_text": description_text,
-        # "fit":              kv.get("fit"),
-        # "length":           kv.get("length"),
-        # "sleeve_length":    kv.get("sleeve length"),
-        # "neckline":         kv.get("neckline"),
-        # "style":            kv.get("style"),
-        # "material":         kv.get("material"),
-        # "composition":      composition or kv.get("composition"),
-        # "pattern":          pattern or kv.get("pattern"),
-    }
-
-
 
 
 if __name__ == "__main__":

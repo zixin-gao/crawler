@@ -2,9 +2,6 @@
 H&M Hong Kong Product Scraper
 Scrapes men's t-shirts & tanks from the H&M listing API.
 Saves products, color variants, and a raw JSON sample to SQLite.
-
-Phase 1: One-time full snapshot.
-Designed to be re-run safely (idempotent via INSERT OR REPLACE).
 """
 
 import requests
@@ -13,6 +10,7 @@ import json
 import time
 import logging
 from datetime import datetime
+import random
 
 # ── Configuration ────────────────────────────────────────────────────────────
 # https://www2.hm.com/en_hk/men/shop-by-product/t-shirts-and-tanks.html
@@ -44,75 +42,74 @@ log = logging.getLogger(__name__)
 def init_db(conn: sqlite3.Connection) -> None:
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS products (
-            product_id      TEXT PRIMARY KEY,
-            name            TEXT,
-            gender          TEXT,
-            category        TEXT,
-            current_price   REAL,
-            max_price       REAL,
-            min_price       REAL,
-            on_sale         INTEGER,
-            stock_status    TEXT,
-            main_image_url  TEXT,
-            model_image_url TEXT,
-            fit             TEXT,
-            pattern         TEXT,
-            neckline        TEXT,
-            sleeve_length   TEXT,
-            material        TEXT,
-            tags            TEXT,
-            new_arrival     INTEGER,
-            external        INTEGER,        
-            brand_name      TEXT,
-            tracking_id     TEXT,
-            product_url     TEXT,
-            scraped_at      TEXT,
-            raw_json        TEXT
+            product_id              TEXT PRIMARY KEY,
+            name                    TEXT,
+            gender                  TEXT,
+            category                TEXT,
+            current_price           REAL,
+            max_price               REAL,
+            min_price               REAL,
+            on_sale                 INTEGER,
+            stock_status            TEXT,
+            main_image_url          TEXT,
+            model_image_url         TEXT,
+            description             TEXT,    -- pattern start here
+            fit                     TEXT,
+            neckline                TEXT,
+            length                  TEXT,
+            sleeve_length           TEXT,
+            extra_attributes        TEXT,    -- pattern ends here
+            tags                    TEXT,
+            new_arrival             INTEGER,
+            external                INTEGER,     
+            product_url             TEXT,
+            raw_json                TEXT,
+            pattern_scraped_at      TEXT     -- update later 
         );
 
         CREATE TABLE IF NOT EXISTS color_variants (
-            product_id          TEXT NOT NULL,
-            color_code          TEXT NOT NULL,
-            color_name          TEXT,
-            color_hex           TEXT,
-            color_product_image TEXT,
-            color_in_stock      INTEGER,
-            scraped_at          TEXT NOT NULL,
-            PRIMARY KEY (product_id, color_code, scraped_at)
+            product_id                TEXT NOT NULL,
+            color_code                TEXT NOT NULL,
+            color_name                TEXT,
+            color_hex                 TEXT,
+            color_product_image       TEXT,
+            color_in_stock            INTEGER,
+            color_scraped_at          TEXT NOT NULL,
+            PRIMARY KEY (product_id, color_code, color_scraped_at)
         );
     """)
     conn.commit()
 
 # ── API helpers ───────────────────────────────────────────────────────────────
 
-def fetch_page(page: int, session: requests.Session) -> dict:
+def fetch_page(base_url: str, page: int, headers: dict, session: requests.Session, page_id: str, page_size: int, category_id: str) -> dict:
     """Fetch one page of products from the H&M listing API."""
     params = {
         "pageSource":    "PLP",
         "page":          page,
         "sort":          "RELEVANCE",
-        "pageId":        PAGE_ID,
-        "page-size":     PAGE_SIZE,
-        "categoryId":    CATEGORY_ID,
+        "pageId":        page_id,
+        "page-size":     page_size,
+        "categoryId":    category_id,
         "filters":       "sale:false||oldSale:false",
         "touchPoint":    "DESKTOP",
         "skipStockCheck":"false",
     }
-    resp = session.get(BASE_URL, params=params, headers=HEADERS, timeout=20)
+    resp = session.get(base_url, params=params, headers=headers, timeout=20)
     resp.raise_for_status()
     return resp.json()
 
 # ── Parsing helpers ───────────────────────────────────────────────────────────
 
-def extract_fit(product_name: str) -> str:
-    """Pull fit type from the product name string."""
-    for fit in ["Slim Fit", "Loose Fit", "Regular Fit", "Relaxed Fit",
-                "Oversized Fit", "Muscle Fit", "Compression Fit"]:
-        if fit.lower() in product_name.lower():
-            return fit
-    return ""
+# def extract_fit(product_name: str) -> str:
+#     """Pull fit type from the product name string."""
+#     for fit in ["Slim Fit", "Loose Fit", "Regular Fit", "Relaxed Fit",
+#                 "Oversized Fit", "Muscle Fit", "Compression Fit"]:
+#         if fit.lower() in product_name.lower():
+#             return fit
+#     return ""
 
-def parse_product(item: dict, scraped_at: str) -> dict:
+def parse_product(item: dict) -> dict:
     """Map one raw API product dict to our schema."""
     prices   = item.get("prices", [{}])
     price    = prices[0].get("price") if prices else None
@@ -120,16 +117,24 @@ def parse_product(item: dict, scraped_at: str) -> dict:
     min_price = prices[0].get("minPrice") if prices else None
     on_sale  = any(p.get("priceType") == "redPrice" for p in prices)
 
-    markers  = [m.get("text", "") for m in item.get("productMarkers", [])]
-    tags_str = ", ".join(markers) if markers else ""
+    markers  = [m.get("text", "") for m in item.get("productMarkers", []).lower()]
+    tags_str = ", ".join(markers) if markers else None
+    product_name = item.get("productName", "").lower()
+    main_category = item.get("mainCatCode", "").lower()
 
-    product_name = item.get("productName", "")
+    gender = ""
+    if "men" in main_category:
+        gender = "men"
+    elif "ladies" in main_category:
+        gender = "women"
+    elif "kids" in main_category:
+        gender = "kids"
 
     return {
         "product_id":      item.get("id"),
         "name":            product_name,
-        "gender":          "Men", #FIX!!!!!
-        "category":        item.get("mainCatCode"),
+        "gender":          gender, 
+        "category":        main_category,
         "current_price":   price,
         "max_price":       max_price,
         "min_price":       min_price,
@@ -137,26 +142,26 @@ def parse_product(item: dict, scraped_at: str) -> dict:
         "stock_status":    item.get("availability", {}).get("stockState"),
         "main_image_url":  item.get("productImage"),
         "model_image_url": item.get("modelImage"),
-        "fit":             extract_fit(product_name),
-        "pattern":         "",             # available in facets, not per-product
-        "neckline":        "",             # same — facet-level only
-        "sleeve_length":   "",             # same
-        "material":        "",             # same
+        "description":     None,  # update patterns using level 2 scraper through html
+        "fit":             None, # extract_fit(product_name),
+        "neckline":        None,
+        "length":          None,
+        "sleeve_length":   None,
+        "extra_attributes": None,
         "tags":            tags_str,
         "new_arrival":     item.get("newArrival", False),
         "external":        item.get("external", False),
-        "brand_name":      item.get("brandName"),
-        "tracking_id":     item.get("trackingId"),
         "product_url":     "https://www2.hm.com" + item.get("url", ""),
-        "scraped_at":      scraped_at,
+        "pattern_scraped_at":      None,
         "raw_json":        json.dumps(item),
     }
 
-def parse_colors(item: dict, scraped_at: str) -> list[dict]:
+def parse_colors(item: dict) -> list[dict]:
     """Extract color variant rows from a product item."""
     rows = []
     product_id = item.get("id")
     main_stock = item.get("availability", {}).get("stockState") == "Available"
+    color_scraped_at = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")
 
     for swatch in item.get("swatches", []):
         rows.append({
@@ -166,7 +171,7 @@ def parse_colors(item: dict, scraped_at: str) -> list[dict]:
             "color_hex":           swatch.get("colorCode"),   # hex without #
             "color_product_image": swatch.get("productImage"),
             "color_in_stock":      int(main_stock),           # best available signal
-            "scraped_at":          scraped_at,
+            "color_scraped_at":    color_scraped_at,
         })
     return rows
 
@@ -176,32 +181,27 @@ def upsert_product(conn: sqlite3.Connection, row: dict) -> None:
     conn.execute("""
         INSERT OR REPLACE INTO products
         (product_id, name, gender, category, current_price, max_price, min_price,
-         on_sale, stock_status, main_image_url, model_image_url,
-         fit, pattern, neckline, sleeve_length, material,
-         tags, new_arrival, external, brand_name, tracking_id, product_url, scraped_at, raw_json)
+         on_sale, stock_status, main_image_url, model_image_url, description,
+         fit, neckline, length, sleeve_length, extra_attributes, tags, new_arrival, external, product_url, pattern_scraped_at, raw_json)
         VALUES
         (:product_id, :name, :gender, :category, :current_price, :max_price, :min_price,
-         :on_sale, :stock_status, :main_image_url, :model_image_url,
-         :fit, :pattern, :neckline, :sleeve_length, :material,
-         :tags, :new_arrival, :external, :brand_name, :tracking_id, :product_url, :scraped_at, :raw_json)
+         :on_sale, :stock_status, :main_image_url, :model_image_url, :description,
+         :fit, :neckline, :length, :sleeve_length, :extra_attributes, :tags, :new_arrival, :external, :product_url, :pattern_scraped_at, :raw_json)
     """, row)
 
 def upsert_colors(conn: sqlite3.Connection, rows: list[dict]) -> None:
     conn.executemany("""
         INSERT OR REPLACE INTO color_variants
         (product_id, color_code, color_name, color_hex,
-         color_product_image, color_in_stock, scraped_at)
+         color_product_image, color_in_stock, color_scraped_at)
         VALUES
         (:product_id, :color_code, :color_name, :color_hex,
-         :color_product_image, :color_in_stock, :scraped_at)
+         :color_product_image, :color_in_stock, :color_scraped_at)
     """, rows)
 
 # ── Main scrape loop ──────────────────────────────────────────────────────────
 
-def run_scrape() -> None:
-    scraped_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-    log.info("Scrape started at %s (UTC)", scraped_at)
-
+def run_level1_scrape() -> None:
     conn    = sqlite3.connect(DB_FILE)
     session = requests.Session()
     init_db(conn)
@@ -209,7 +209,7 @@ def run_scrape() -> None:
     # --- Page 1: get total pages and save raw sample ---
     log.info("Fetching page 1 to discover total pages...")
     try:
-        data = fetch_page(1, session)
+        data = fetch_page(BASE_URL, 1, HEADERS, session, PAGE_ID, PAGE_SIZE, CATEGORY_ID)
     except Exception as e:
         log.error("Failed to fetch page 1: %s", e)
         conn.close()
@@ -233,7 +233,7 @@ def run_scrape() -> None:
         if page > 1:
             log.info("Fetching page %d / %d ...", page, total_pages)
             try:
-                data = fetch_page(page, session)
+                data = fetch_page(BASE_URL, page, HEADERS, session, PAGE_ID, PAGE_SIZE, CATEGORY_ID)
             except Exception as e:
                 log.warning("Page %d failed (%s) — skipping", page, e)
                 time.sleep(3)
@@ -243,8 +243,8 @@ def run_scrape() -> None:
         log.info("  Page %d: %d products", page, len(items))
 
         for item in items:
-            product_row  = parse_product(item, scraped_at)
-            color_rows   = parse_colors(item, scraped_at)
+            product_row  = parse_product(item)
+            color_rows   = parse_colors(item)
 
             upsert_product(conn, product_row)
             upsert_colors(conn, color_rows)
@@ -252,14 +252,13 @@ def run_scrape() -> None:
             color_count   += len(color_rows)
 
         conn.commit()
-        time.sleep(0.5)   # polite delay between pages
+        time.sleep(random.uniform(4.5, 7.2))   # polite delay between pages
+        if page == 1:
+            break
 
-    log.info("Done. Inserted/updated %d products, %d color variants.",
-             product_count, color_count)
+    log.info("Done. Inserted/updated %d products, %d color variants.", product_count, color_count)
     log.info("Database saved to: %s", DB_FILE)
     conn.close()
 
-# ── Entry point ───────────────────────────────────────────────────────────────
-
-if __name__ == "__main__":
-    run_scrape()
+# if __name__ == "__main__":
+#     run_level1_scrape()

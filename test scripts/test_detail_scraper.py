@@ -209,7 +209,7 @@ async def run_detail_scrape() -> None:
                 conn.commit()
                 log.info("  ✔ Committed %d products so far", i)
 
-            await page.wait_for_timeout(1000)   # polite anti-scraping cadence cooldown
+            await page.wait_for_timeout(3000)   # polite anti-scraping cadence cooldown
 
         await browser.close()
 
