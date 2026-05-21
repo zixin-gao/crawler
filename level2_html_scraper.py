@@ -6,11 +6,33 @@ import logging
 from bs4 import BeautifulSoup
 import csv
 import random
+import json
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-DB_FILE = "./data/hm_products.db"
-SEPARATOR_CHAR=","
-csv_file_name = "./data/hm_products_detail.csv"
+DB_FILE = "./data/20260521_124811hm_products.db"
+BOOKMARK_FILE = "./product_id/last_accessed_product.txt"
+STYLES_LIST_IN_DB = ["fit", "neckline", "length", "sleeve length"]
+last_product_id = None
+
+def store_last_accessed_productID(last_accessed_filename):
+    global last_product_id
+    if last_product_id is not None:
+        with open(last_accessed_filename, "w") as f:
+            f.write(str(last_product_id))
+            log.info("Stored last accessed product ID: %s", last_product_id)
+
+def reload_last_accessed_productID(last_accessed_filename):
+    global last_product_id
+    try:
+        with open(last_accessed_filename, "r") as f:
+            last_product_id = f.read().strip()
+            log.info("Reloaded last accessed product ID: %s", last_product_id)
+    except FileNotFoundError:
+        log.info("No bookmark file found. Starting from the beginning.")
+        last_product_id = None
+
+# SEPARATOR_CHAR=","
+# csv_file_name = "./data/hm_products_detail.csv"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -19,50 +41,44 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
  
 # ── Database helpers ──────────────────────────────────────────────────────────
-
-def add_detail_columns(conn: sqlite3.Connection) -> None:
-    """
-    Safely add new columns to the products table if they don't exist yet.
-    SQLite ignores the command if the column is already there (via try/except).
-    """
-    new_columns = [
-        ("description_text", "TEXT"),
-        ("length",           "TEXT"),
-        ("style",            "TEXT"),
-        ("composition",      "TEXT"),
-    ]
-    for col_name, col_type in new_columns:
-        try:
-            conn.execute(f"ALTER TABLE products ADD COLUMN {col_name} {col_type}")
-            log.info("Added column: %s", col_name)
-        except sqlite3.OperationalError:
-            pass   # column already exists — that's fine
-    conn.commit()
-
 def get_all_products(conn: sqlite3.Connection) -> list[tuple]:
     """Return (product_id, product_url) for every row in products."""
-    rows = conn.execute(
-        "SELECT product_id, product_url FROM products"
-    ).fetchall()
+    rows = None
+    if last_product_id is None:
+        rows = conn.execute(
+            "SELECT product_id, product_url FROM products ORDER BY product_id ASC"
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT product_id, product_url FROM products WHERE product_id > ? ORDER BY product_id ASC",
+            (last_product_id,)
+        ).fetchall()
+
     return rows
 
+def update_product_details(conn:sqlite3.Connection, product_id, description_text, style_attributes, material_text):
+    extra_attributes_json = json.dumps(style_attributes, ensure_ascii=False)
+    conn.execute(
+        "UPDATE products SET description = ?, extra_attributes = ?, material = ? WHERE product_id = ?",
+        (description_text, extra_attributes_json, material_text, product_id)
+    )
+
 async def extract_fields(page):
+        global last_product_id
         # debugging --------------
         conn = sqlite3.connect(DB_FILE)
-    
-        # Make sure the extra columns exist before we try to write to them
-        add_detail_columns(conn)
         
         products = get_all_products(conn)
         total    = len(products)
-        log.info("Starting detail scrape for %d products...", total)
+        log.info(f"Starting from productID <{last_product_id if last_product_id else 'begin'}>")
+        log.info("Starting detail scrape for %d products...", total)        
 
-        csv_file = open(csv_file_name, "w", encoding="utf-8")
+        # csv_file = open(csv_file_name, "w", encoding="utf-8")
 
-        # extract style dictionary and material list
-        for i, (product_id, product_url) in enumerate(products, 1):
-            log.info("[%d/%d] Processing ID: %s -> %s", i, total, product_id, product_url)
-            try:
+        # extract style dictionary and material list        
+        try:
+            for i, (product_id, product_url) in enumerate(products, 1):
+                log.info("[%d/%d] Processing ID: %s -> %s", i, total, product_id, product_url)
                 # Direct navigation simulating normal window operations
                 await page.goto(product_url, wait_until="domcontentloaded", timeout=30000)
 
@@ -104,14 +120,18 @@ async def extract_fields(page):
 
                 # 4. make attribute dictionary
                 style_attributes = {}
-                csv_file.write(f'"{product_id}"{SEPARATOR_CHAR}"{description_text}"')
+                #csv_file.write(f'"{product_id}"{SEPARATOR_CHAR}"{description_text}"')
                 for key_text, value_data in zip(all_keys_text, all_values_data):
                     clean_key = key_text.strip().replace(':', '').lower()
-                    testid_attribute = value_data['testId']                    
-                    style_attributes[testid_attribute] = (clean_key, value_data['text'])
-                    csv_file.write(f'{SEPARATOR_CHAR}"{clean_key}"')
+                    if clean_key in STYLES_LIST_IN_DB:
+                        conn.execute(f"UPDATE products SET {clean_key} = ? WHERE product_id = ?", (value_data['text'], product_id))
+                        log.info(f"Commited {clean_key} data to productID: {product_id}")
+                    else:
+                        # testid_attribute = value_data['testId']                    
+                        style_attributes[clean_key] = value_data['text']
+                    #csv_file.write(f'{SEPARATOR_CHAR}"{clean_key}"')
                 # print("DEBUG: Found style attributes:", style_attributes)
-                csv_file.write("\n")
+                # csv_file.write("\n")
 
 
                 # -------- 2. find material accordion -------------
@@ -120,28 +140,32 @@ async def extract_fields(page):
                 # html_text = await material_card_locator.inner_html()
                 # print("Materials html_text:", html_text)
                 material_text = await material_card_locator.locator("dd").first.text_content()
-                # print("Material text:", material_text)                
+                print("Material text:", material_text)                
 
                 await page.wait_for_timeout(3000)   # structural delay ensuring JS hydration finishes
                 html = await page.content()
-    
-            except Exception as e:
-                log.warning("  ✗ Fetch failed for item %s: %s", product_id, e)
-                continue
+                last_product_id = product_id
+                
+                # debug dump
+                # open(f"htmls/debug_{product_id}.html", "w", encoding="utf-8").write(html) 
+                # if i == 1:
+                #     break
 
-            # debug dump
-            # open(f"htmls/debug_{product_id}.html", "w", encoding="utf-8").write(html) 
-            # if i == 1:
-            #     break
+                update_product_details(conn, product_id, description_text, style_attributes, material_text)
+                
+                # Commit periodically to secure data safety thresholds
+                if i % 20 == 0:
+                    conn.commit()
+                    log.info("  ✔ Committed %d products so far", i)
+                    break
 
-            # update_product_details(conn, product_id, details)
-            
-            # Commit periodically to secure data safety thresholds
-            if i % 20 == 0:
-                # conn.commit()
-                log.info("  ✔ Committed %d products so far", i)
+                await page.wait_for_timeout(random.randint(4500, 6000))   # polite anti-scraping cadence cooldown
 
-            await page.wait_for_timeout(random.randint(4500, 6000))   # polite anti-scraping cadence cooldown
+        except Exception as e:
+            log.warning("  ✗ Fetch failed for item %s: %s", product_id, e)
+        
+        finally:
+            store_last_accessed_productID(BOOKMARK_FILE)
 
 # main logic ─────────────────────────────────────────────────────────────
 async def run_detail_scrape():
@@ -160,11 +184,12 @@ async def run_detail_scrape():
  
         # Wait for the page to fully load its products
         await page.wait_for_timeout(3000)
-        # await extract_fields(page)
+        await extract_fields(page)
 
         await browser.close()
  
 
 
 if __name__ == "__main__":
+    reload_last_accessed_productID(BOOKMARK_FILE) 
     asyncio.run(run_detail_scrape())

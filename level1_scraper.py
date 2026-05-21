@@ -20,7 +20,7 @@ CATEGORY_ID   = "men_tshirtstanks"
 PAGE_ID       = "/men/shop-by-product/t-shirts-and-tanks"
 BASE_URL      = "https://api.hm.com/search-services/v1/en_hk/listing/resultpage"
 PAGE_SIZE     = 36
-DB_FILE       = "./data/hm_products.db"
+DB_FILE       = "hm_products"
 RAW_JSON_FILE = "./data/hm_raw_sample.json"   # saves the first page response as a sample
 
 HEADERS = {
@@ -60,6 +60,7 @@ def init_db(conn: sqlite3.Connection) -> None:
             neckline                TEXT,
             length                  TEXT,
             sleeve_length           TEXT,
+            material                TEXT,
             extra_attributes        TEXT,    -- pattern ends here
             tags                    TEXT,
             new_arrival             INTEGER,
@@ -85,61 +86,56 @@ def init_db(conn: sqlite3.Connection) -> None:
 ### https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/men/shop-by-product/t-shirts-and-tanks&page-size=36&categoryId=men_tshirtstanks&filters=sale:false||oldSale:false&touchPoint=DESKTOP&skipStockCheck=false
 
 # ── API helpers ───────────────────────────────────────────────────────────────
-async def fetch_page(base_url: str, page_num: int, page_id: str, category_id: str) -> dict:
+async def fetch_page(page,base_url: str, page_num: int, page_id: str, category_id: str) -> dict:
     """Fetch one page of products from the H&M listing API."""
-    async with async_playwright() as p:
-        browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
-        context = browser.contexts[0]
-        page = await context.new_page()
+    params = {
+        "pageSource":    "PLP",
+        "page":          page_num,
+        "sort":          "RELEVANCE",
+        "pageId":        page_id,
+        "page-size":     PAGE_SIZE,
+        "categoryId":    category_id,
+        "filters":       "sale:false||oldSale:false",
+        "touchPoint":    "DESKTOP",
+        "skipStockCheck":"false",
+    }
 
-        params = {
-            "pageSource":    "PLP",
-            "page":          page_num,
-            "sort":          "RELEVANCE",
-            "pageId":        page_id,
-            "page-size":     PAGE_SIZE,
-            "categoryId":    category_id,
-            "filters":       "sale:false||oldSale:false",
-            "touchPoint":    "DESKTOP",
-            "skipStockCheck":"false",
-        }
-
-        # 这段 JavaScript 代码将在浏览器的页面中执行
-        js_script = """
-        async (args) => {
-            const { baseUrl, params } = args;
-            
-            // 使用浏览器内置的 URLSearchParams 来构建查询字符串，比手动拼接更安全
-            const queryString = new URLSearchParams(params).toString();
-            const url = `${baseUrl}?${queryString}`;
-            
-            // 使用 Fetch API 发送 GET 请求
-            const response = await fetch(url);
-            
-            // 检查请求是否成功
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            // 假设 API 返回的是 JSON 格式的数据，并将其返回
-            return await response.json();
-        }
-        """
-
-        # 定义要传递给 JavaScript 函数的参数
-        args = {
-            "baseUrl": base_url,
-            "params": params
-        }
-
-        # 执行 JavaScript 并获取返回的数据
-        content = await page.evaluate(js_script, args)
-    
-        # 打印获取到的内容（用于调试）
-        print(f"content: {content}")
+    # 这段 JavaScript 代码将在浏览器的页面中执行
+    js_script = """
+    async (args) => {
+        const { baseUrl, params } = args;
         
-        # 返回获取到的数据，以便其他部分的代码可以使用
-        return content
+        // 使用浏览器内置的 URLSearchParams 来构建查询字符串，比手动拼接更安全
+        const queryString = new URLSearchParams(params).toString();
+        const url = `${baseUrl}?${queryString}`;
+        
+        // 使用 Fetch API 发送 GET 请求
+        const response = await fetch(url);
+        
+        // 检查请求是否成功
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // 假设 API 返回的是 JSON 格式的数据，并将其返回
+        return await response.json();
+    }
+    """
+
+    # 定义要传递给 JavaScript 函数的参数
+    args = {
+        "baseUrl": base_url,
+        "params": params
+    }
+
+    # 执行 JavaScript 并获取返回的数据
+    content = await page.evaluate(js_script, args)
+
+    # 打印获取到的内容（用于调试）
+    # print(f"content: {content}")
+    
+    # 返回获取到的数据，以便其他部分的代码可以使用
+    return content
 
 # method that uses cdp to open another browser to get info from the API
 # async def query_products_baseinfo(page):
@@ -219,6 +215,7 @@ def parse_product(item: dict) -> dict:
         "neckline":        None,
         "length":          None,
         "sleeve_length":   None,
+        "material":        None,
         "extra_attributes": None,
         "tags":            tags_str,
         "new_arrival":     item.get("newArrival", False),
@@ -254,11 +251,11 @@ def upsert_product(conn: sqlite3.Connection, row: dict) -> None:
         INSERT OR REPLACE INTO products
         (product_id, name, gender, category, current_price, max_price, min_price,
          on_sale, stock_status, main_image_url, model_image_url, description,
-         fit, neckline, length, sleeve_length, extra_attributes, tags, new_arrival, external, product_url, pattern_scraped_at, raw_json)
+         fit, neckline, length, sleeve_length, material, extra_attributes, tags, new_arrival, external, product_url, pattern_scraped_at, raw_json)
         VALUES
         (:product_id, :name, :gender, :category, :current_price, :max_price, :min_price,
          :on_sale, :stock_status, :main_image_url, :model_image_url, :description,
-         :fit, :neckline, :length, :sleeve_length, :extra_attributes, :tags, :new_arrival, :external, :product_url, :pattern_scraped_at, :raw_json)
+         :fit, :neckline, :length, :sleeve_length, :material, :extra_attributes, :tags, :new_arrival, :external, :product_url, :pattern_scraped_at, :raw_json)
     """, row)
 
 def upsert_colors(conn: sqlite3.Connection, rows: list[dict]) -> None:
@@ -274,63 +271,75 @@ def upsert_colors(conn: sqlite3.Connection, rows: list[dict]) -> None:
 # ── Main scrape loop ──────────────────────────────────────────────────────────
 
 async def run_level1_scrape():
-    conn    = sqlite3.connect(DB_FILE)
+    db_file = "/".join(["./data", datetime.utcnow().strftime("%Y%m%d_%H%M%S")+DB_FILE+".db"])
+    conn    = sqlite3.connect(db_file)
+
     session = requests.Session()
     init_db(conn)
 
-    # --- Page 1: get total pages and save raw sample ---
-    log.info("Fetching page 1 to discover total pages...")
-    try:
-        data = await fetch_page(BASE_URL, 1, PAGE_ID, CATEGORY_ID)
-    except Exception as e:
-        log.error("Failed to fetch page 1: %s", e)
+    async with async_playwright() as p:
+        browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
+        context = browser.contexts[0]
+        page = await context.new_page()
+
+
+        # --- Page 1: get total pages and save raw sample ---
+        log.info("Fetching page 1 to discover total pages...")
+        try:
+            data = await fetch_page(page,BASE_URL, 1, PAGE_ID, CATEGORY_ID)
+        except Exception as e:
+            log.error("Failed to fetch page 1: %s", e)
+            conn.close()
+            return
+
+        # Save raw JSON sample (first page only, for documentation)
+        with open(RAW_JSON_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        log.info("Raw JSON sample saved to %s", RAW_JSON_FILE)
+
+        pagination   = data.get("pagination", {})
+        total_pages  = pagination.get("totalPages", 1)
+        total_hits   = data.get("numberOfHits", "?")
+        log.info("Total products: %s across %s pages", total_hits, total_pages)
+
+        product_count = 0
+        color_count = 0
+
+        # Process pages 1 … total_pages
+        product_id_files = open("./data/product_id.txt","w",encoding="utf-8") 
+        for page_num in range(1, total_pages + 1):
+            if page_num > 1:
+                log.info("Fetching page %d / %d ...", page_num, total_pages)
+                try:
+                    data = await fetch_page(page,BASE_URL, page_num, PAGE_ID, CATEGORY_ID)
+                    items = data.get("plpList", {}).get("productList", [])
+                    log.info("  Page %d: %d products", page_num, len(items))
+
+                    for item in items:
+                        product_id_files.write(item.get("id")+"\n")
+                        product_row  = parse_product(item)
+                        color_rows   = parse_colors(item)
+
+                        upsert_product(conn, product_row)
+                        upsert_colors(conn, color_rows)
+                        product_count += 1
+                        color_count   += len(color_rows)
+
+                    conn.commit()
+                    log.info("Inserted/updated %d products.", len(items))            
+                except Exception as e:
+                    log.warning("Page %d failed (%s) — skipping", page_num, e)
+                    time.sleep(3)
+                    continue
+
+        
+            time.sleep(random.uniform(4.5, 7.2))   # polite delay between pages
+            # if page == 1:
+            #     break
+
+        log.info("Done. Inserted/updated %d products, %d color variants.", product_count, color_count)
+        log.info("Database saved to: %s", DB_FILE)
         conn.close()
-        return
-
-    # Save raw JSON sample (first page only, for documentation)
-    with open(RAW_JSON_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-    log.info("Raw JSON sample saved to %s", RAW_JSON_FILE)
-
-    pagination   = data.get("pagination", {})
-    total_pages  = pagination.get("totalPages", 1)
-    total_hits   = data.get("numberOfHits", "?")
-    log.info("Total products: %s across %s pages", total_hits, total_pages)
-
-    product_count = 0
-    color_count   = 0
-
-    # Process pages 1 … total_pages
-    for page in range(1, total_pages + 1):
-        if page > 1:
-            log.info("Fetching page %d / %d ...", page, total_pages)
-            try:
-                data = await fetch_page(BASE_URL, 1, PAGE_ID, CATEGORY_ID)
-            except Exception as e:
-                log.warning("Page %d failed (%s) — skipping", page, e)
-                time.sleep(3)
-                continue
-
-        items = data.get("plpList", {}).get("productList", [])
-        log.info("  Page %d: %d products", page, len(items))
-
-        for item in items:
-            product_row  = parse_product(item)
-            color_rows   = parse_colors(item)
-
-            upsert_product(conn, product_row)
-            upsert_colors(conn, color_rows)
-            product_count += 1
-            color_count   += len(color_rows)
-
-        conn.commit()
-        time.sleep(random.uniform(4.5, 7.2))   # polite delay between pages
-        if page == 1:
-            break
-
-    log.info("Done. Inserted/updated %d products, %d color variants.", product_count, color_count)
-    log.info("Database saved to: %s", DB_FILE)
-    conn.close()
 
 if __name__ == "__main__":
     asyncio.run(run_level1_scrape())
