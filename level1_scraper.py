@@ -11,6 +11,8 @@ import time
 import logging
 from datetime import datetime
 import random
+from playwright.async_api import async_playwright
+import asyncio
 
 # ── Configuration ────────────────────────────────────────────────────────────
 # https://www2.hm.com/en_hk/men/shop-by-product/t-shirts-and-tanks.html
@@ -80,24 +82,94 @@ def init_db(conn: sqlite3.Connection) -> None:
     """)
     conn.commit()
 
-# ── API helpers ───────────────────────────────────────────────────────────────
+### https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/men/shop-by-product/t-shirts-and-tanks&page-size=36&categoryId=men_tshirtstanks&filters=sale:false||oldSale:false&touchPoint=DESKTOP&skipStockCheck=false
 
-def fetch_page(base_url: str, page: int, headers: dict, session: requests.Session, page_id: str, page_size: int, category_id: str) -> dict:
+# ── API helpers ───────────────────────────────────────────────────────────────
+async def fetch_page(base_url: str, page_num: int, page_id: str, category_id: str) -> dict:
     """Fetch one page of products from the H&M listing API."""
-    params = {
-        "pageSource":    "PLP",
-        "page":          page,
-        "sort":          "RELEVANCE",
-        "pageId":        page_id,
-        "page-size":     page_size,
-        "categoryId":    category_id,
-        "filters":       "sale:false||oldSale:false",
-        "touchPoint":    "DESKTOP",
-        "skipStockCheck":"false",
-    }
-    resp = session.get(base_url, params=params, headers=headers, timeout=20)
-    resp.raise_for_status()
-    return resp.json()
+    async with async_playwright() as p:
+        browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
+        context = browser.contexts[0]
+        page = await context.new_page()
+
+        params = {
+            "pageSource":    "PLP",
+            "page":          page_num,
+            "sort":          "RELEVANCE",
+            "pageId":        page_id,
+            "page-size":     PAGE_SIZE,
+            "categoryId":    category_id,
+            "filters":       "sale:false||oldSale:false",
+            "touchPoint":    "DESKTOP",
+            "skipStockCheck":"false",
+        }
+
+        # 这段 JavaScript 代码将在浏览器的页面中执行
+        js_script = """
+        async (args) => {
+            const { baseUrl, params } = args;
+            
+            // 使用浏览器内置的 URLSearchParams 来构建查询字符串，比手动拼接更安全
+            const queryString = new URLSearchParams(params).toString();
+            const url = `${baseUrl}?${queryString}`;
+            
+            // 使用 Fetch API 发送 GET 请求
+            const response = await fetch(url);
+            
+            // 检查请求是否成功
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            // 假设 API 返回的是 JSON 格式的数据，并将其返回
+            return await response.json();
+        }
+        """
+
+        # 定义要传递给 JavaScript 函数的参数
+        args = {
+            "baseUrl": base_url,
+            "params": params
+        }
+
+        # 执行 JavaScript 并获取返回的数据
+        content = await page.evaluate(js_script, args)
+    
+        # 打印获取到的内容（用于调试）
+        print(f"content: {content}")
+        
+        # 返回获取到的数据，以便其他部分的代码可以使用
+        return content
+
+# method that uses cdp to open another browser to get info from the API
+# async def query_products_baseinfo(page):
+#     page_num=1
+#     params = {
+#             "pageSource":    "PLP",
+#             "page":          page_num,
+#             "sort":          "RELEVANCE",
+#             "pageId":        PAGE_ID,
+#             "page-size":     PAGE_SIZE,
+#             "categoryId":    CATEGORY_ID,
+#             "filters":       "sale:false||oldSale:false",
+#             "touchPoint":    "DESKTOP",
+#             "skipStockCheck":"false",
+#         }
+#     # 导入 Python 内置的 urllib.parse 库，它专门用来处理 URL
+#     import urllib.parse
+    
+#     # 1. 使用 urlencode 函数将 params 字典转换成 URL 查询字符串
+#     # 例如: "pageSource=PLP&page=1&sort=RELEVANCE&..."
+#     query_string = urllib.parse.urlencode(params)
+    
+#     # 2. 将 BASE_URL 和查询字符串拼接成一个完整的 URL
+#     full_url = f"{BASE_URL}?{query_string}"
+    
+#     # 3. 让 Playwright 导航到这个构建好的、包含所有参数的完整 URL
+#     # 这就等同于向服务器发送了一个带有这些参数的 GET 请求
+#     await page.goto(full_url, wait_until="domcontentloaded", timeout=30000)
+#     content = await page.content()
+#     print(f"content:{content}")
 
 # ── Parsing helpers ───────────────────────────────────────────────────────────
 
@@ -117,7 +189,7 @@ def parse_product(item: dict) -> dict:
     min_price = prices[0].get("minPrice") if prices else None
     on_sale  = any(p.get("priceType") == "redPrice" for p in prices)
 
-    markers  = [m.get("text", "") for m in item.get("productMarkers", []).lower()]
+    markers  = [m.get("text", "") for m in item.get("productMarkers", [])]
     tags_str = ", ".join(markers) if markers else None
     product_name = item.get("productName", "").lower()
     main_category = item.get("mainCatCode", "").lower()
@@ -161,7 +233,7 @@ def parse_colors(item: dict) -> list[dict]:
     rows = []
     product_id = item.get("id")
     main_stock = item.get("availability", {}).get("stockState") == "Available"
-    color_scraped_at = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")
+    color_scraped_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
     for swatch in item.get("swatches", []):
         rows.append({
@@ -201,7 +273,7 @@ def upsert_colors(conn: sqlite3.Connection, rows: list[dict]) -> None:
 
 # ── Main scrape loop ──────────────────────────────────────────────────────────
 
-def run_level1_scrape() -> None:
+async def run_level1_scrape():
     conn    = sqlite3.connect(DB_FILE)
     session = requests.Session()
     init_db(conn)
@@ -209,7 +281,7 @@ def run_level1_scrape() -> None:
     # --- Page 1: get total pages and save raw sample ---
     log.info("Fetching page 1 to discover total pages...")
     try:
-        data = fetch_page(BASE_URL, 1, HEADERS, session, PAGE_ID, PAGE_SIZE, CATEGORY_ID)
+        data = await fetch_page(BASE_URL, 1, PAGE_ID, CATEGORY_ID)
     except Exception as e:
         log.error("Failed to fetch page 1: %s", e)
         conn.close()
@@ -233,7 +305,7 @@ def run_level1_scrape() -> None:
         if page > 1:
             log.info("Fetching page %d / %d ...", page, total_pages)
             try:
-                data = fetch_page(BASE_URL, page, HEADERS, session, PAGE_ID, PAGE_SIZE, CATEGORY_ID)
+                data = await fetch_page(BASE_URL, 1, PAGE_ID, CATEGORY_ID)
             except Exception as e:
                 log.warning("Page %d failed (%s) — skipping", page, e)
                 time.sleep(3)
@@ -260,5 +332,5 @@ def run_level1_scrape() -> None:
     log.info("Database saved to: %s", DB_FILE)
     conn.close()
 
-# if __name__ == "__main__":
-#     run_level1_scrape()
+if __name__ == "__main__":
+    asyncio.run(run_level1_scrape())

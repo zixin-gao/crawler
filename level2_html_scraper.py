@@ -46,24 +46,7 @@ def get_all_products(conn: sqlite3.Connection) -> list[tuple]:
     ).fetchall()
     return rows
 
-# main logic ─────────────────────────────────────────────────────────────
-async def run_detail_scrape():
-    async with async_playwright() as p:
-        # Connect to an existing browser instance over CDP to avoid cookie issues
-        browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
-        context = browser.contexts[0]
-        page = await context.new_page()
-
-        # debug testing whether the browser opens or not
-        # await page.goto(
-        #     "https://www2.hm.com/en_hk/productpage.1307966001.html",
-        #     wait_until="domcontentloaded",
-        #     timeout=30000
-        # )
- 
-        # Wait for the page to fully load its products
-        await page.wait_for_timeout(3000)
-
+async def extract_fields(page):
         # debugging --------------
         conn = sqlite3.connect(DB_FILE)
     
@@ -159,6 +142,25 @@ async def run_detail_scrape():
                 log.info("  ✔ Committed %d products so far", i)
 
             await page.wait_for_timeout(random.randint(4500, 6000))   # polite anti-scraping cadence cooldown
+
+# main logic ─────────────────────────────────────────────────────────────
+async def run_detail_scrape():
+    async with async_playwright() as p:
+        # Connect to an existing browser instance over CDP to avoid cookie issues
+        browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
+        context = browser.contexts[0]
+        page = await context.new_page()
+
+        # debug testing whether the browser opens or not
+        # await page.goto(
+        #     "https://www2.hm.com/en_hk/productpage.1307966001.html",
+        #     wait_until="domcontentloaded",
+        #     timeout=30000
+        # )
+ 
+        # Wait for the page to fully load its products
+        await page.wait_for_timeout(3000)
+        # await extract_fields(page)
 
         await browser.close()
  
