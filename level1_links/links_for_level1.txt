@@ -1,0 +1,72 @@
+Not on sale: 
+women_all_clothes = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/ladies/shop-by-product/view-all&page-size=36&categoryId=ladies_viewall&filters=sale:false||oldSale:false&touchPoint=DESKTOP&skipStockCheck=false
+men_all_clothes = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=3&sort=RELEVANCE&pageId=/men/shop-by-product/view-all&page-size=36&categoryId=men_viewall&filters=sale:false||oldSale:false&touchPoint=DESKTOP&skipStockCheck=false
+kids_new_born_all_clothes = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/baby/newborn/clothing/view-all&page-size=36&categoryId=kids_new_born_viewall&filters=sale:false||oldSale:false&touchPoint=DESKTOP&skipStockCheck=false
+kids_baby_all_clothes = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/baby/shop-by-product/clothing/view-all&page-size=36&categoryId=kids_newbornbaby_viewall&filters=sale:false||oldSale:false&touchPoint=DESKTOP&skipStockCheck=false
+kids_2_8_years_all_clothes = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/kids/shop-by-product/clothing/view-all&page-size=36&categoryId=kids_viewall&filters=sale:false||oldSale:false&touchPoint=DESKTOP&skipStockCheck=false
+kids_9_14_years_all_clothes = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/kids/9-14y/clothing/view-all&page-size=36&categoryId=kids_olderkids_viewall&filters=sale:false||oldSale:false&touchPoint=DESKTOP&skipStockCheck=false
+
+On sale: 
+women_all_on_sale = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/ladies/sale/view-all&page-size=36&categoryId=ladies_all&filters=sale:true&touchPoint=DESKTOP&skipStockCheck=false
+men_all_on_sale = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/men/sale/view-all&page-size=36&categoryId=men_all&filters=sale:true&touchPoint=DESKTOP&skipStockCheck=false
+kids_baby_all_on_sale = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/baby/sale/baby/view-all&page-size=36&categoryId=kids_newbornbaby_viewall&filters=sale:true&touchPoint=DESKTOP&skipStockCheck=false
+kids_2_8_years_on_sale = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/kids/sale/2-8y/view-all&page-size=36&categoryId=kids_viewall&filters=sale:true&touchPoint=DESKTOP&skipStockCheck=false
+kids_9_14_years_on_sale = https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/kids/sale/9-14y/view-all&page-size=36&categoryId=kids_olderkids_viewall&filters=sale:true&touchPoint=DESKTOP&skipStockCheck=false
+
+
+
+1. women
+PAGE_ID       = "/ladies/shop-by-product/view-all"
+CATEGORY_ID   = "ladies_viewall"
+FILTERS       = "sale:false||oldSale:false"  
+
+2. men
+PAGE_ID       = "/men/shop-by-product/view-all"
+CATEGORY_ID   = "men_viewall"
+FILTERS       = "sale:false||oldSale:false"  
+
+3. kids_new_born_all_clothes
+PAGE_ID       = "/baby/newborn/clothing/view-all"
+CATEGORY_ID   = "kids_new_born_viewall"
+FILTERS       = "sale:false||oldSale:false"  
+
+4. kids_baby_all_clothes
+PAGE_ID       = "/baby/shop-by-product/clothing/view-all"
+CATEGORY_ID   = "kids_newbornbaby_viewall"
+FILTERS       = "sale:false||oldSale:false" 
+
+5. kids_2_8_years_all_clothes
+PAGE_ID       = "/kids/shop-by-product/clothing/view-all"
+CATEGORY_ID   = "kids_viewall"
+FILTERS       = "sale:false||oldSale:false"  
+
+6. kids_9_14_years_all_clothes
+PAGE_ID       = "/kids/9-14y/clothing/view-all"
+CATEGORY_ID   = "kids_olderkids_viewall"
+FILTERS       = "sale:false||oldSale:false"
+
+
+1. women_all_on_sale
+PAGE_ID       = "/ladies/sale/view-all"
+CATEGORY_ID   = "ladies_all"
+FILTERS       = "sale:true"
+
+2. men_all_on_sale
+PAGE_ID       = "/men/sale/view-all"
+CATEGORY_ID   = "men_all"
+FILTERS       = "sale:true"
+
+3. kids_baby_all_on_sale
+PAGE_ID       = "/baby/sale/baby/view-all"
+CATEGORY_ID   = "kids_newbornbaby_viewall"
+FILTERS       = "sale:true"
+
+4. kids_2_8_years_on_sale
+PAGE_ID       = "/kids/sale/2-8y/view-all"
+CATEGORY_ID   = "kids_viewall"
+FILTERS       = "sale:true"
+
+5. kids_9_14_years_on_sale
+PAGE_ID       = "/kids/sale/9-14y/view-all"
+CATEGORY_ID   = "kids_olderkids_viewall"
+FILTERS       = "sale:true"

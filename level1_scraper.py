@@ -15,14 +15,15 @@ from playwright.async_api import async_playwright
 import asyncio
 
 # ── Configuration ────────────────────────────────────────────────────────────
-# https://www2.hm.com/en_hk/men/shop-by-product/t-shirts-and-tanks.html
-CATEGORY_ID   = "men_tshirtstanks"
-PAGE_ID       = "/men/shop-by-product/t-shirts-and-tanks"
+
+PAGE_ID       = "/kids/sale/9-14y/view-all"
+CATEGORY_ID   = "kids_olderkids_viewall"
+FILTERS       = "sale:true"
 
 BASE_URL      = "https://api.hm.com/search-services/v1/en_hk/listing/resultpage"
 PAGE_SIZE     = 36
-DB_FILE       = "hm_products"
-RAW_JSON_FILE = f"./data/hm_raw_sample{CATEGORY_ID}.json"   # saves the first page response as a sample
+DB_FILE       = "./data/hm_products.db"
+RAW_JSON_FILE = f"./data/raw_json/hm_raw_sample_onsale_{CATEGORY_ID}.json"   # saves the first page response as a sample
 
 HEADERS = {
     "accept": "application/json",
@@ -85,7 +86,7 @@ def init_db(conn: sqlite3.Connection) -> None:
 ### https://api.hm.com/search-services/v1/en_hk/listing/resultpage?pageSource=PLP&page=2&sort=RELEVANCE&pageId=/men/shop-by-product/t-shirts-and-tanks&page-size=36&categoryId=men_tshirtstanks&filters=sale:false||oldSale:false&touchPoint=DESKTOP&skipStockCheck=false
 
 # ── API helpers ───────────────────────────────────────────────────────────────
-async def fetch_page(page,base_url: str, page_num: int, page_id: str, category_id: str) -> dict:
+async def fetch_page(page, base_url: str, page_num: int, page_id: str, category_id: str, filters: str) -> dict:
     """Fetch one page of products from the H&M listing API."""
     params = {
         "pageSource":    "PLP",
@@ -94,7 +95,7 @@ async def fetch_page(page,base_url: str, page_num: int, page_id: str, category_i
         "pageId":        page_id,
         "page-size":     PAGE_SIZE,
         "categoryId":    category_id,
-        "filters":       "sale:false||oldSale:false",
+        "filters":       filters,
         "touchPoint":    "DESKTOP",
         "skipStockCheck":"false",
     }
@@ -266,9 +267,7 @@ def upsert_colors(conn: sqlite3.Connection, rows: list[dict]) -> None:
 # ── Main scrape loop ──────────────────────────────────────────────────────────
 
 async def run_level1_scrape():
-    db_file = "/".join(["./data", datetime.now().strftime("%Y-%m-%d %H:%M:%S")+DB_FILE+".db"])
-    conn    = sqlite3.connect(db_file)
-
+    conn    = sqlite3.connect(DB_FILE)
     session = requests.Session()
     init_db(conn)
 
@@ -281,7 +280,7 @@ async def run_level1_scrape():
         # --- Page 1: get total pages and save raw sample ---
         log.info("Fetching page 1 to discover total pages...")
         try:
-            data = await fetch_page(page, BASE_URL, 1, PAGE_ID, CATEGORY_ID)
+            data = await fetch_page(page, BASE_URL, 1, PAGE_ID, CATEGORY_ID, FILTERS)
         except Exception as e:
             log.error("Failed to fetch page 1: %s", e)
             conn.close()
@@ -306,7 +305,7 @@ async def run_level1_scrape():
             if page_num > 1:
                 log.info("Fetching page %d / %d ...", page_num, total_pages)
                 try:
-                    data = await fetch_page(page,BASE_URL, page_num, PAGE_ID, CATEGORY_ID)
+                    data = await fetch_page(page,BASE_URL, page_num, PAGE_ID, CATEGORY_ID, FILTERS)
                     items = data.get("plpList", {}).get("productList", [])
                     log.info("  Page %d: %d products", page_num, len(items))
 
