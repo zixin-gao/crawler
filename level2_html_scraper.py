@@ -7,11 +7,12 @@ from bs4 import BeautifulSoup
 import csv
 import random
 import json
+from datetime import datetime
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 DB_FILE = "./data/20260521_124811hm_products.db"
 BOOKMARK_FILE = "./product_id/last_accessed_product.txt"
-STYLES_LIST_IN_DB = ["fit", "neckline", "length", "sleeve length"]
+STYLES_LIST_IN_DB = ["fit", "neckline", "length", "sleeve_length"]
 last_product_id = None
 
 def store_last_accessed_productID(last_accessed_filename):
@@ -50,7 +51,7 @@ def get_all_products(conn: sqlite3.Connection) -> list[tuple]:
         ).fetchall()
     else:
         rows = conn.execute(
-            "SELECT product_id, product_url FROM products WHERE product_id > ? ORDER BY product_id ASC",
+            "SELECT product_id, product_url FROM products WHERE product_id >= ? ORDER BY product_id ASC",
             (last_product_id,)
         ).fetchall()
 
@@ -58,9 +59,10 @@ def get_all_products(conn: sqlite3.Connection) -> list[tuple]:
 
 def update_product_details(conn:sqlite3.Connection, product_id, description_text, style_attributes, material_text):
     extra_attributes_json = json.dumps(style_attributes, ensure_ascii=False)
+    pattern_scraped_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     conn.execute(
-        "UPDATE products SET description = ?, extra_attributes = ?, material = ? WHERE product_id = ?",
-        (description_text, extra_attributes_json, material_text, product_id)
+        "UPDATE products SET description = ?, extra_attributes = ?, material = ?, pattern_scraped_at = ? WHERE product_id = ?",
+        (description_text, extra_attributes_json, material_text, pattern_scraped_at, product_id)
     )
 
 async def extract_fields(page):
@@ -89,8 +91,13 @@ async def extract_fields(page):
                 #html_text = await product_card_locator.inner_html()
                 #print("Description html_ext:", html_text)
 
-                description_locator = product_card_locator.locator("p").first
-                description_text = await description_locator.text_content()
+                description_text = None  # Default value
+                try:
+                    description_locator = product_card_locator.locator("p").first
+                    description_text = await description_locator.text_content() 
+                except Exception:
+                    log.warning(f"No description found for product {product_id}")
+
                 #print("Description text:", description_text)              
 
                 # 1. define Locators
@@ -122,10 +129,11 @@ async def extract_fields(page):
                 style_attributes = {}
                 #csv_file.write(f'"{product_id}"{SEPARATOR_CHAR}"{description_text}"')
                 for key_text, value_data in zip(all_keys_text, all_values_data):
-                    clean_key = key_text.strip().replace(':', '').lower()
+                    clean_key = key_text.strip().replace(':', '').replace(" ", "_").lower()
                     if clean_key in STYLES_LIST_IN_DB:
-                        conn.execute(f"UPDATE products SET {clean_key} = ? WHERE product_id = ?", (value_data['text'], product_id))
-                        log.info(f"Commited {clean_key} data to productID: {product_id}")
+                        # print(f"clean_key: {clean_key}, value_data['text']: {value_data['text']}")
+                        conn.execute(f'UPDATE products SET "{clean_key}" = ? WHERE product_id = ?', (value_data['text'], product_id))
+                        # log.info(f"Commited {clean_key}: {value_data['text']} to productID: {product_id}")
                     else:
                         # testid_attribute = value_data['testId']                    
                         style_attributes[clean_key] = value_data['text']
@@ -139,8 +147,13 @@ async def extract_fields(page):
                 material_card_locator = page.locator("#section-materialsAndSuppliersAccordion")
                 # html_text = await material_card_locator.inner_html()
                 # print("Materials html_text:", html_text)
-                material_text = await material_card_locator.locator("dd").first.text_content()
-                print("Material text:", material_text)                
+
+                material_text = None  # Default value
+                try:
+                    material_text = await material_card_locator.locator("dd").first.text_content()
+                except Exception:
+                    log.warning(f"No material found for product {product_id}")
+                # print("Material text:", material_text)                
 
                 await page.wait_for_timeout(3000)   # structural delay ensuring JS hydration finishes
                 html = await page.content()
@@ -154,7 +167,7 @@ async def extract_fields(page):
                 update_product_details(conn, product_id, description_text, style_attributes, material_text)
                 
                 # Commit periodically to secure data safety thresholds
-                if i % 20 == 0:
+                if i % 2 == 0:
                     conn.commit()
                     log.info("  ✔ Committed %d products so far", i)
                     break
@@ -163,9 +176,12 @@ async def extract_fields(page):
 
         except Exception as e:
             log.warning("  ✗ Fetch failed for item %s: %s", product_id, e)
+            conn.commit()  # commit progress before exiting due to error
         
         finally:
             store_last_accessed_productID(BOOKMARK_FILE)
+            conn.commit()
+            conn.close()
 
 # main logic ─────────────────────────────────────────────────────────────
 async def run_detail_scrape():

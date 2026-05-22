@@ -18,10 +18,11 @@ import asyncio
 # https://www2.hm.com/en_hk/men/shop-by-product/t-shirts-and-tanks.html
 CATEGORY_ID   = "men_tshirtstanks"
 PAGE_ID       = "/men/shop-by-product/t-shirts-and-tanks"
+
 BASE_URL      = "https://api.hm.com/search-services/v1/en_hk/listing/resultpage"
 PAGE_SIZE     = 36
 DB_FILE       = "hm_products"
-RAW_JSON_FILE = "./data/hm_raw_sample.json"   # saves the first page response as a sample
+RAW_JSON_FILE = f"./data/hm_raw_sample{CATEGORY_ID}.json"   # saves the first page response as a sample
 
 HEADERS = {
     "accept": "application/json",
@@ -49,8 +50,6 @@ def init_db(conn: sqlite3.Connection) -> None:
             gender                  TEXT,
             category                TEXT,
             current_price           REAL,
-            max_price               REAL,
-            min_price               REAL,
             on_sale                 INTEGER,
             stock_status            TEXT,
             main_image_url          TEXT,
@@ -181,8 +180,6 @@ def parse_product(item: dict) -> dict:
     """Map one raw API product dict to our schema."""
     prices   = item.get("prices", [{}])
     price    = prices[0].get("price") if prices else None
-    max_price = prices[0].get("maxPrice") if prices else None
-    min_price = prices[0].get("minPrice") if prices else None
     on_sale  = any(p.get("priceType") == "redPrice" for p in prices)
 
     markers  = [m.get("text", "") for m in item.get("productMarkers", [])]
@@ -204,8 +201,6 @@ def parse_product(item: dict) -> dict:
         "gender":          gender, 
         "category":        main_category,
         "current_price":   price,
-        "max_price":       max_price,
-        "min_price":       min_price,
         "on_sale":         on_sale,
         "stock_status":    item.get("availability", {}).get("stockState"),
         "main_image_url":  item.get("productImage"),
@@ -230,7 +225,7 @@ def parse_colors(item: dict) -> list[dict]:
     rows = []
     product_id = item.get("id")
     main_stock = item.get("availability", {}).get("stockState") == "Available"
-    color_scraped_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    color_scraped_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     for swatch in item.get("swatches", []):
         rows.append({
@@ -249,11 +244,11 @@ def parse_colors(item: dict) -> list[dict]:
 def upsert_product(conn: sqlite3.Connection, row: dict) -> None:
     conn.execute("""
         INSERT OR REPLACE INTO products
-        (product_id, name, gender, category, current_price, max_price, min_price,
+        (product_id, name, gender, category, current_price, 
          on_sale, stock_status, main_image_url, model_image_url, description,
          fit, neckline, length, sleeve_length, material, extra_attributes, tags, new_arrival, external, product_url, pattern_scraped_at, raw_json)
         VALUES
-        (:product_id, :name, :gender, :category, :current_price, :max_price, :min_price,
+        (:product_id, :name, :gender, :category, :current_price, 
          :on_sale, :stock_status, :main_image_url, :model_image_url, :description,
          :fit, :neckline, :length, :sleeve_length, :material, :extra_attributes, :tags, :new_arrival, :external, :product_url, :pattern_scraped_at, :raw_json)
     """, row)
@@ -271,7 +266,7 @@ def upsert_colors(conn: sqlite3.Connection, rows: list[dict]) -> None:
 # ── Main scrape loop ──────────────────────────────────────────────────────────
 
 async def run_level1_scrape():
-    db_file = "/".join(["./data", datetime.utcnow().strftime("%Y%m%d_%H%M%S")+DB_FILE+".db"])
+    db_file = "/".join(["./data", datetime.now().strftime("%Y-%m-%d %H:%M:%S")+DB_FILE+".db"])
     conn    = sqlite3.connect(db_file)
 
     session = requests.Session()
@@ -286,7 +281,7 @@ async def run_level1_scrape():
         # --- Page 1: get total pages and save raw sample ---
         log.info("Fetching page 1 to discover total pages...")
         try:
-            data = await fetch_page(page,BASE_URL, 1, PAGE_ID, CATEGORY_ID)
+            data = await fetch_page(page, BASE_URL, 1, PAGE_ID, CATEGORY_ID)
         except Exception as e:
             log.error("Failed to fetch page 1: %s", e)
             conn.close()
@@ -318,6 +313,13 @@ async def run_level1_scrape():
                     for item in items:
                         product_id_files.write(item.get("id")+"\n")
                         product_row  = parse_product(item)
+
+                        # Skip saving if category is 'accessories' or 'shoes'
+                        category = product_row.get("category", "")
+                        if "accessories" in category or "shoes" in category:
+                            log.info(f"Skipping product {product_row.get('product_id')} due to excluded category: {category}")
+                            continue
+
                         color_rows   = parse_colors(item)
 
                         upsert_product(conn, product_row)
