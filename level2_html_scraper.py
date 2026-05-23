@@ -30,64 +30,28 @@ log = logging.getLogger(__name__)
 class DetailedScraper:
     def __init__(self):
         self.continuous_failed_attempts = 0
-        self.accessed_product_ids = set()
-        self.reload_accessed_productIDs(BOOKMARK_FILE)
-
-        self.conn = sqlite3.connect(DB_FILE)            
-        self.unprocessed_products_ids = self.get_unprocessed_products()
+        self.conn = sqlite3.connect(DB_FILE)
+        self.total_product_count = self.conn.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+        self.last_timeout_product_count = 0
 
     def still_have_products_to_process(self):
-        return len(self.unprocessed_products_ids) > 0
-
-    def product_is_processed(self, product_id):
-        if product_id in self.accessed_product_ids:
-            return True
-        else:
-            return False
-    def append_processed_product_id(self, product_id):
-        self.accessed_product_ids.add(product_id)
+        count = self.conn.execute("SELECT COUNT(*) FROM products WHERE pattern_scraped_at IS NULL").fetchone()[0] 
+        return count > 0
     
     def __del__(self):
         if self.conn:
-            self.conn.close()
-
-    def store_accessed_productIDs(self, last_accessed_filename):
-        if  len(self.accessed_product_ids) !=0:
-            with open(last_accessed_filename, "w") as f:
-                for product_id in self.accessed_product_ids:
-                    f.write(str(product_id) + "\n")
-                log.info("Stored accessed product IDs: <%d>", len(self.accessed_product_ids))
-
-    def reload_accessed_productIDs(self, last_accessed_filename):
-        try:
-            with open(last_accessed_filename, "r") as f:
-                for line in f:
-                    product_id = line.strip()
-                    self.accessed_product_ids.add(product_id)
-                log.info("Reloaded accessed product IDs <%d>", len(self.accessed_product_ids))
-        except FileNotFoundError:
-            log.warning("No bookmark file found. Starting from the beginning.")
-            
+            self.conn.close()            
 
     # ── Database helpers ──────────────────────────────────────────────────────────
     def get_unprocessed_products(self) -> list[tuple]:
         """Return (product_id, product_url) for every row in products."""
         sql_rows = None
         sql_rows = self.conn.execute(
-            "SELECT product_id, product_url FROM products ORDER BY product_id ASC"
+            "SELECT product_id, product_url FROM products WHERE pattern_scraped_at IS NULL ORDER BY product_id ASC"
         ).fetchall()
+        log.info(f"Found {len(sql_rows)} products remaining to be scraped.")
 
-        rows = []
-        skip_count = 0
-        for row in sql_rows:
-            product_id, product_url = row
-            if not (product_id in self.accessed_product_ids):
-                rows.append((product_id, product_url))
-            else:
-                skip_count += 1
-                log.info("SKipping already-processed product-ID %s", product_id)
-        log.info("Total skipped products: %d", skip_count)
-        return rows
+        return sql_rows
 
     def update_product_details(self, product_id, description_text, style_attributes, material_text):
         extra_attributes_json = json.dumps(style_attributes, ensure_ascii=False)
@@ -100,18 +64,19 @@ class DetailedScraper:
     async def extract_fields(self, page):
             # debugging --------------
             self.continuous_failed_attempts += 1
-            processed_count = len(self.accessed_product_ids)
-            unprocessed_count = len(self.unprocessed_products_ids)
-            log.info("Starting detail scrape for %d products...", unprocessed_count)        
+            log.info("Starting detail scrape for remaining products...")    
 
+            unprocessed_products_ids = self.get_unprocessed_products()
+            unprocessed_product_count = len(unprocessed_products_ids)
+            processed_product_count = self.total_product_count - unprocessed_product_count
             # csv_file = open(csv_file_name, "w", encoding="utf-8")
 
             # extract style dictionary and material list        
             try:
-                for i, (product_id, product_url) in enumerate(self.unprocessed_products_ids, 1):
-                    log.info("[%d/%d] Processing ID: %s -> %s", i+processed_count, unprocessed_count+processed_count, product_id, product_url)
+                for i, (product_id, product_url) in enumerate(unprocessed_products_ids, 1):
+                    log.info("[%d/%d] Processing ID: %s -> %s", i + processed_product_count, self.total_product_count, product_id, product_url)
                     # Direct navigation simulating normal window operations
-                    await page.goto(product_url, wait_until="domcontentloaded", timeout=30000)
+                    await page.goto(product_url, wait_until="domcontentloaded", timeout=5000)
 
                     # -------- 1. find description accordion -------------
                     # await page.locator("#toggle-descriptionAccordion").click()
@@ -193,14 +158,13 @@ class DetailedScraper:
                     # debug dump
                     # open(f"htmls/debug_{product_id}.html", "w", encoding="utf-8").write(html) 
 
-                    self.append_processed_product_id(product_id)
                     self.update_product_details(product_id, description_text, style_attributes, material_text)
                     
                     # Commit periodically to secure data safety thresholds
                     if i % 3 == 0:
                         self.conn.commit()
                         log.info("  ✔ Committed %d products so far", i)
-
+                    self.last_timeout_product_count = i
                     self.continuous_failed_attempts = 0  # Reset on successful processing
                     await page.wait_for_timeout(random.randint(3500, 5000))   # polite anti-scraping cadence cooldown 
 
@@ -208,7 +172,6 @@ class DetailedScraper:
                 log.warning("  ✗ Fetch failed for item %s: %s", product_id, e)   
             
             finally:
-                self.store_accessed_productIDs(BOOKMARK_FILE)
                 self.conn.commit()
                 log.info("  ✔ Committed products so far")                   
 
@@ -335,12 +298,17 @@ if __name__ == "__main__":
             else:
                 log.error("Failed to start browser instance for port %d.", cdp_port)
 
-            cdp_port += 1
+            cdp_port = cdp_port + 1 if cdp_port == 9223 else cdp_port - 1
+            
+            # cdp_port += 1
             # Reset for the next loop iteration
             browser_process = None
             user_data_dir = None
            
-            waiting_time = 150*(scraper.continuous_failed_attempts+1)*2
+            if scraper.last_timeout_product_count <= 10:
+                waiting_time = 700
+            else:
+                waiting_time = 210*(scraper.continuous_failed_attempts+1)*2
             log.info("Waiting %d seconds before starting the next browser instance...", waiting_time)
             time.sleep(waiting_time)  # Short delay before starting the next browser instance.unit second.
             
@@ -352,5 +320,4 @@ if __name__ == "__main__":
             scraper.browser_cleanup(browser_process, user_data_dir)
         
         # Always save progress on exit
-        scraper.store_accessed_productIDs(BOOKMARK_FILE)
         log.info("Scraping process finished.")
